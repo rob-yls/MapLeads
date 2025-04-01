@@ -12,6 +12,8 @@ import { Input } from "@/components/ui/input"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Map, Eye, EyeOff } from "lucide-react"
+import { useAuth } from "@/hooks/use-auth"
+import { useToast } from "@/hooks/use-toast"
 
 const registerFormSchema = z
   .object({
@@ -40,6 +42,8 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const router = useRouter()
+  const { signUp } = useAuth()
+  const { toast } = useToast()
 
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerFormSchema),
@@ -52,17 +56,39 @@ export default function RegisterPage() {
     },
   })
 
-  function onSubmit(data: RegisterFormValues) {
+  async function onSubmit(data: RegisterFormValues) {
     setIsLoading(true)
 
-    // Simulate API call
-    setTimeout(() => {
-      console.log("Registration data:", data)
+    try {
+      const { error } = await signUp(data.email, data.password)
+      
+      if (error) {
+        toast({
+          title: "Registration error",
+          description: error.message || "Failed to create account. Please try again.",
+          variant: "destructive",
+        })
+        console.error("Registration error:", error)
+      } else {
+        toast({
+          title: "Account created",
+          description: "Please check your email to confirm your account.",
+        })
+        
+        // In Supabase, users typically need to confirm their email before they can log in
+        // So we redirect to login page instead of dashboard
+        router.push("/login")
+      }
+    } catch (error) {
+      console.error("Unexpected error during registration:", error)
+      toast({
+        title: "Something went wrong",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
       setIsLoading(false)
-
-      // Redirect to dashboard on successful registration
-      router.push("/dashboard")
-    }, 1500)
+    }
   }
 
   return (
@@ -230,4 +256,3 @@ export default function RegisterPage() {
     </div>
   )
 }
-

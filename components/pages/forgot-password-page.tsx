@@ -10,6 +10,8 @@ import { Input } from "@/components/ui/input"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Map, ArrowLeft, CheckCircle } from "lucide-react"
+import { useAuth } from "@/hooks/use-auth"
+import { useToast } from "@/hooks/use-toast"
 
 const forgotPasswordSchema = z.object({
   email: z.string().min(1, { message: "Email is required" }).email({ message: "Please enter a valid email address" }),
@@ -20,6 +22,8 @@ type ForgotPasswordValues = z.infer<typeof forgotPasswordSchema>
 export default function ForgotPasswordPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const { resetPassword } = useAuth()
+  const { toast } = useToast()
 
   const form = useForm<ForgotPasswordValues>({
     resolver: zodResolver(forgotPasswordSchema),
@@ -28,15 +32,36 @@ export default function ForgotPasswordPage() {
     },
   })
 
-  function onSubmit(data: ForgotPasswordValues) {
+  async function onSubmit(data: ForgotPasswordValues) {
     setIsLoading(true)
 
-    // Simulate API call
-    setTimeout(() => {
-      console.log("Reset password for:", data.email)
+    try {
+      const { error } = await resetPassword(data.email)
+      
+      if (error) {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to send reset link. Please try again.",
+          variant: "destructive",
+        })
+        console.error("Password reset error:", error)
+      } else {
+        setIsSubmitted(true)
+        toast({
+          title: "Reset link sent",
+          description: "Please check your email for password reset instructions.",
+        })
+      }
+    } catch (error) {
+      console.error("Unexpected error during password reset:", error)
+      toast({
+        title: "Something went wrong",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
       setIsLoading(false)
-      setIsSubmitted(true)
-    }, 1500)
+    }
   }
 
   return (
@@ -108,4 +133,3 @@ export default function ForgotPasswordPage() {
     </div>
   )
 }
-

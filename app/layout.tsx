@@ -1,12 +1,12 @@
-import type React from "react"
 import "@/app/globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
+import { Providers } from "@/components/providers"
 import type { Metadata } from "next"
+import type React from "react"
 
 export const metadata: Metadata = {
   title: "MapLeads - Business Search Platform",
   description: "Find and analyze business leads with MapLeads",
-    generator: 'v0.dev'
+  generator: 'v0.dev'
 }
 
 export default function RootLayout({
@@ -17,14 +17,10 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+        <Providers>
           {children}
-        </ThemeProvider>
+        </Providers>
       </body>
     </html>
   )
 }
-
-
-
-import './globals.css'
