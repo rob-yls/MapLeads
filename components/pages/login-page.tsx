@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -27,6 +27,8 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirectTo = searchParams.get('redirectTo') || '/dashboard'
   const { signIn } = useAuth()
   const { toast } = useToast()
 
@@ -57,7 +59,7 @@ export default function LoginPage() {
           title: "Welcome back!",
           description: "You have successfully signed in.",
         })
-        router.push("/dashboard")
+        router.push(redirectTo)
       }
     } catch (error) {
       console.error("Unexpected error during login:", error)

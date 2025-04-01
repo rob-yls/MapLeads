@@ -1,6 +1,3 @@
-import SettingsPage from "@/components/pages/settings-page"
+import ProtectedSettings from "@/app/(protected)/settings/page"
 
-export default function Settings() {
-  return <SettingsPage />
-}
-
+export default ProtectedSettings

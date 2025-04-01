@@ -1,6 +1,3 @@
-import HistoryPage from "@/components/pages/history-page"
+import ProtectedHistory from "@/app/(protected)/history/page"
 
-export default function History() {
-  return <HistoryPage />
-}
-
+export default ProtectedHistory

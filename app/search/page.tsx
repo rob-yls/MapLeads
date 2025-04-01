@@ -1,6 +1,3 @@
-import SearchPage from "@/components/pages/search-page"
+import ProtectedSearch from "@/app/(protected)/search/page"
 
-export default function Search() {
-  return <SearchPage />
-}
-
+export default ProtectedSearch

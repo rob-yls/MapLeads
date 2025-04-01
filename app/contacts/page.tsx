@@ -1,6 +1,3 @@
-import ContactsPage from "@/components/pages/contacts-page"
+import ProtectedContacts from "@/app/(protected)/contacts/page"
 
-export default function Contacts() {
-  return <ContactsPage />
-}
-
+export default ProtectedContacts

@@ -17,4 +17,28 @@ jest.mock('next/navigation', () => ({
     push: jest.fn(),
     refresh: jest.fn(),
   }),
+  useSearchParams: () => ({
+    get: jest.fn(),
+  }),
 }));
+
+// Mock ResizeObserver
+class ResizeObserverMock {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
+global.ResizeObserver = ResizeObserverMock;
+
+// Mock IntersectionObserver
+class IntersectionObserverMock {
+  constructor(callback) {
+    this.callback = callback;
+  }
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
+global.IntersectionObserver = IntersectionObserverMock;

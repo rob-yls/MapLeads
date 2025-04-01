@@ -1,0 +1,281 @@
+PASS __tests__/auth-service.test.ts
+PASS __tests__/auth-integration.test.ts
+(node:35028) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+FAIL __tests__/middleware.test.ts
+  ΓùÅ Console
+
+    console.error
+      Middleware error: Error: Supabase error
+          at Object.<anonymous> (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\__tests__\middleware.test.ts:95:52)
+          at Promise.then.completed (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-circus@29.7.0\node_modules\jest-circus\build\utils.js:298:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-circus@29.7.0\node_modules\jest-circus\build\utils.js:231:10)
+          at _callCircusTest (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-circus@29.7.0\node_modules\jest-circus\build\run.js:316:40)
+          at processTicksAndRejections (node:internal/process/task_queues:105:5)
+          at _runTest (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-circus@29.7.0\node_modules\jest-circus\build\run.js:252:3)
+          at _runTestsForDescribeBlock (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-circus@29.7.0\node_modules\jest-circus\build\run.js:126:9)
+          at _runTestsForDescribeBlock (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-circus@29.7.0\node_modules\jest-circus\build\run.js:121:9)
+          at run (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-circus@29.7.0\node_modules\jest-circus\build\run.js:71:3)
+          at runAndTransformResultsToJestFormat (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-circus@29.7.0\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapterInit.js:122:21)
+          at jestAdapter (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-circus@29.7.0\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapter.js:79:19)
+          at runTestInternal (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-runner@29.7.0\node_modules\jest-runner\build\runTest.js:367:16)
+          at runTest (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-runner@29.7.0\node_modules\jest-runner\build\runTest.js:444:34)
+          at Object.worker (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-runner@29.7.0\node_modules\jest-runner\build\testWorker.js:106:12)
+
+      31 |     return res
+      32 |   } catch (error) {
+    > 33 |     console.error('Middleware error:', error)
+         |             ^
+      34 |     
+      35 |     // If there's an error with Supabase (like missing env vars), 
+      36 |     // we'll just continue without auth checks for development purposes
+
+      at error (middleware.ts:33:13)
+      at Object.<anonymous> (__tests__/middleware.test.ts:97:5)
+
+  ΓùÅ Auth Middleware ΓÇ║ redirects to login when accessing protected routes without authentication
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: ObjectContaining {"url": StringContaining "/login?redirectTo=%2Fdashboard"}
+    Received: "http://localhost:3000/login?redirectTo=%2Fdashboard"
+
+    Number of calls: 1
+
+      67 |     
+      68 |     // Should redirect to login with the original URL as redirectTo
+    > 69 |     expect(NextResponse.redirect).toHaveBeenCalledWith(
+         |                                   ^
+      70 |       expect.objectContaining({
+      71 |         url: expect.stringContaining('/login?redirectTo=%2Fdashboard'),
+      72 |       })
+
+      at Object.toHaveBeenCalledWith (__tests__/middleware.test.ts:69:35)
+
+FAIL __tests__/auth-context.test.ts
+  ΓùÅ Test suite failed to run
+
+    Jest encountered an unexpected token
+
+    Jest failed to parse a file. This happens e.g. when your code or its dependencies use non-standard JavaScript syntax, or when Jest is not configured to support such syntax.
+
+    Out of the box Jest supports Babel, which will be used to transform your files into valid JS based on your Babel configuration.
+
+    By default "node_modules" folder is ignored by transformers.
+
+    Here's what you can do:
+     ΓÇó If you are trying to use ECMAScript Modules, see https://jestjs.io/docs/ecmascript-modules for how to enable it.
+     ΓÇó If you are trying to use TypeScript, see https://jestjs.io/docs/getting-started#using-typescript
+     ΓÇó To have some of your "node_modules" files transformed, you can specify a custom "transformIgnorePatterns" in your config.
+     ΓÇó If you need a custom transformation specify a "transform" option in your config.
+     ΓÇó If you simply want to mock your non-JS modules (e.g. binary assets) you can stub them out with the "moduleNameMapper" config option.
+
+    You'll find more details and examples of these config options in the docs:
+    https://jestjs.io/docs/configuration
+    For information about custom transformations, see:
+    https://jestjs.io/docs/code-transformation
+
+    Details:
+
+    SyntaxError: C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\__tests__\auth-context.test.ts: Unterminated regular expression. (41:28)
+
+      39 |
+      40 | const wrapper = ({ children }: { children: ReactNode }) => (
+    > 41 |   <AuthProvider>{children}</AuthProvider>
+         |                             ^
+      42 | );
+      43 |
+      44 | describe('Auth Context', () => {
+
+      at constructor (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parse-error.ts:95:45)
+      at TypeScriptParserMixin.toParseError [as raise] (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/tokenizer/index.ts:1497:19)
+      at TypeScriptParserMixin.raise [as readRegexp] (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/tokenizer/index.ts:1082:20)
+      at TypeScriptParserMixin.readRegexp [as parseExprAtom] (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/expression.ts:1117:14)
+      at TypeScriptParserMixin.parseExprAtom [as parseExprSubscripts] (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/expression.ts:723:23)
+      at TypeScriptParserMixin.parseExprSubscripts [as parseUpdate] (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/expression.ts:702:21)
+      at TypeScriptParserMixin.parseUpdate (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/expression.ts:664:23)
+      at TypeScriptParserMixin.parseMaybeUnary (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/plugins/typescript/index.ts:3765:20)
+      at TypeScriptParserMixin.parseMaybeUnary [as parseMaybeUnaryOrPrivate] (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/expression.ts:398:14)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/expression.ts:578:12)
+      at TypeScriptParserMixin.parseExprOpBaseRightExpr [as parseExprOpRightExpr] (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/expression.ts:563:21)
+      at TypeScriptParserMixin.parseExprOpRightExpr (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/expression.ts:494:27)
+      at TypeScriptParserMixin.parseExprOp (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/plugins/typescript/index.ts:2832:20)
+      at TypeScriptParserMixin.parseExprOp [as parseExprOps] (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/expression.ts:416:17)
+      at TypeScriptParserMixin.parseExprOps [as parseMaybeConditional] (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/expression.ts:365:23)
+      at TypeScriptParserMixin.parseMaybeConditional (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/expression.ts:296:21)
+      at parseMaybeAssign (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/plugins/typescript/index.ts:3652:28)
+      at TypeScriptParserMixin.fn [as tryParse] (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/util.ts:175:20)
+      at TypeScriptParserMixin.tryParse [as parseMaybeAssign] (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/plugins/typescript/index.ts:3649:26)
+      at parseMaybeAssign (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/expression.ts:252:12)
+      at TypeScriptParserMixin.callback [as allowInAnd] (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/expression.ts:3128:12)
+      at TypeScriptParserMixin.allowInAnd [as parseMaybeAssignAllowIn] (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/expression.ts:251:17)
+      at TypeScriptParserMixin.parseMaybeAssignAllowIn [as parseParenAndDistinguishExpression] (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/expression.ts:1780:16)
+      at TypeScriptParserMixin.parseParenAndDistinguishExpression [as parseExprAtom] (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/expression.ts:1140:21)
+      at TypeScriptParserMixin.parseExprAtom [as parseExprSubscripts] (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/expression.ts:723:23)
+      at TypeScriptParserMixin.parseExprSubscripts [as parseUpdate] (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/expression.ts:702:21)
+      at TypeScriptParserMixin.parseUpdate (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/expression.ts:664:23)
+      at TypeScriptParserMixin.parseMaybeUnary (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/plugins/typescript/index.ts:3765:20)
+      at TypeScriptParserMixin.parseMaybeUnary [as parseMaybeUnaryOrPrivate] (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/expression.ts:398:14)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate [as parseExprOps] (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/expression.ts:410:23)
+      at TypeScriptParserMixin.parseExprOps [as parseMaybeConditional] (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/expression.ts:365:23)
+      at TypeScriptParserMixin.parseMaybeConditional (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/expression.ts:296:21)
+      at TypeScriptParserMixin.parseMaybeAssign (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/plugins/typescript/index.ts:3637:22)
+      at TypeScriptParserMixin.parseMaybeAssign [as parseFunctionBody] (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/expression.ts:2557:14)
+      at TypeScriptParserMixin.parseFunctionBody [as parseArrowExpression] (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/expression.ts:2512:10)
+      at TypeScriptParserMixin.parseArrowExpression [as parseParenAndDistinguishExpression] (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/expression.ts:1803:12)
+      at TypeScriptParserMixin.parseParenAndDistinguishExpression [as parseExprAtom] (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/expression.ts:1140:21)
+      at TypeScriptParserMixin.parseExprAtom [as parseExprSubscripts] (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/expression.ts:723:23)
+      at TypeScriptParserMixin.parseExprSubscripts [as parseUpdate] (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/expression.ts:702:21)
+      at TypeScriptParserMixin.parseUpdate (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/expression.ts:664:23)
+      at TypeScriptParserMixin.parseMaybeUnary (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/plugins/typescript/index.ts:3765:20)
+      at TypeScriptParserMixin.parseMaybeUnary [as parseMaybeUnaryOrPrivate] (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/expression.ts:398:14)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate [as parseExprOps] (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/expression.ts:410:23)
+      at TypeScriptParserMixin.parseExprOps [as parseMaybeConditional] (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/expression.ts:365:23)
+      at TypeScriptParserMixin.parseMaybeConditional (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/expression.ts:296:21)
+      at TypeScriptParserMixin.parseMaybeAssign (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/plugins/typescript/index.ts:3637:22)
+      at parseMaybeAssign (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/expression.ts:252:12)
+      at TypeScriptParserMixin.callback [as allowInAnd] (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/expression.ts:3123:16)
+      at TypeScriptParserMixin.allowInAnd [as parseMaybeAssignAllowIn] (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/expression.ts:251:17)
+      at TypeScriptParserMixin.parseMaybeAssignAllowIn [as parseVar] (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/statement.ts:1546:18)
+      at TypeScriptParserMixin.parseVar (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/statement.ts:1210:10)
+      at TypeScriptParserMixin.parseVarStatement (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/plugins/typescript/index.ts:3042:33)
+      at TypeScriptParserMixin.parseVarStatement (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/statement.ts:566:21)
+      at TypeScriptParserMixin.parseStatementContent (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/plugins/typescript/index.ts:3091:20)
+      at TypeScriptParserMixin.parseStatementContent [as parseStatementLike] (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/statement.ts:437:17)
+      at TypeScriptParserMixin.parseStatementLike [as parseModuleItem] (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/statement.ts:374:17)
+      at TypeScriptParserMixin.parseModuleItem [as parseBlockOrModuleBlockBody] (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/statement.ts:1402:16)
+      at TypeScriptParserMixin.parseBlockOrModuleBlockBody [as parseBlockBody] (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/statement.ts:1376:10)
+      at TypeScriptParserMixin.parseBlockBody [as parseProgram] (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/statement.ts:225:10)
+      at TypeScriptParserMixin.parseProgram [as parseTopLevel] (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/statement.ts:203:25)
+      at TypeScriptParserMixin.parseTopLevel (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/parser/index.ts:93:10)
+      at TypeScriptParserMixin.parse (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/plugins/typescript/index.ts:4219:20)
+      at parse (node_modules/.pnpm/@babel+parser@7.27.0/node_modules/@babel/parser/src/index.ts:92:38)
+      at parser (node_modules/.pnpm/@babel+core@7.26.10/node_modules/@babel/core/src/parser/index.ts:28:19)
+          at parser.next (<anonymous>)
+      at normalizeFile (node_modules/.pnpm/@babel+core@7.26.10/node_modules/@babel/core/src/transformation/normalize-file.ts:49:24)
+          at normalizeFile.next (<anonymous>)
+      at run (node_modules/.pnpm/@babel+core@7.26.10/node_modules/@babel/core/src/transformation/index.ts:40:36)
+          at run.next (<anonymous>)
+      at transform (node_modules/.pnpm/@babel+core@7.26.10/node_modules/@babel/core/src/transform.ts:29:20)
+          at transform.next (<anonymous>)
+      at evaluateSync (node_modules/.pnpm/gensync@1.0.0-beta.2/node_modules/gensync/index.js:251:28)
+      at sync (node_modules/.pnpm/gensync@1.0.0-beta.2/node_modules/gensync/index.js:89:14)
+      at fn (node_modules/.pnpm/@babel+core@7.26.10/node_modules/@babel/core/src/errors/rewrite-stack-trace.ts:99:14)
+      at transformSync (node_modules/.pnpm/@babel+core@7.26.10/node_modules/@babel/core/src/transform.ts:66:52)
+      at ScriptTransformer.transformSource (node_modules/.pnpm/@jest+transform@29.7.0/node_modules/@jest/transform/build/ScriptTransformer.js:545:31)
+      at ScriptTransformer._transformAndBuildScript (node_modules/.pnpm/@jest+transform@29.7.0/node_modules/@jest/transform/build/ScriptTransformer.js:674:40)
+      at ScriptTransformer.transform (node_modules/.pnpm/@jest+transform@29.7.0/node_modules/@jest/transform/build/ScriptTransformer.js:726:19)
+
+(node:26100) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:35124) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:32096) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+PASS __tests__/protected-routes.test.tsx
+PASS __tests__/hooks/use-auth.test.tsx
+(node:13508) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:23608) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+PASS __tests__/components/logout-button.test.tsx (5.228 s)
+  ΓùÅ Console
+
+    console.error
+      Error logging out: Error: Sign out failed
+          at Object.<anonymous> (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\__tests__\components\logout-button.test.tsx:68:35)
+          at Promise.then.completed (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-circus@29.7.0\node_modules\jest-circus\build\utils.js:298:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-circus@29.7.0\node_modules\jest-circus\build\utils.js:231:10)
+          at _callCircusTest (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-circus@29.7.0\node_modules\jest-circus\build\run.js:316:40)
+          at _runTest (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-circus@29.7.0\node_modules\jest-circus\build\run.js:252:3)
+          at _runTestsForDescribeBlock (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-circus@29.7.0\node_modules\jest-circus\build\run.js:126:9)
+          at _runTestsForDescribeBlock (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-circus@29.7.0\node_modules\jest-circus\build\run.js:121:9)
+          at run (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-circus@29.7.0\node_modules\jest-circus\build\run.js:71:3)
+          at runAndTransformResultsToJestFormat (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-circus@29.7.0\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapterInit.js:122:21)
+          at jestAdapter (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-circus@29.7.0\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapter.js:79:19)
+          at runTestInternal (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-runner@29.7.0\node_modules\jest-runner\build\runTest.js:367:16)
+          at runTest (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-runner@29.7.0\node_modules\jest-runner\build\runTest.js:444:34)
+          at Object.worker (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-runner@29.7.0\node_modules\jest-runner\build\testWorker.js:106:12)
+
+      20 |       })
+      21 |     } catch (error) {
+    > 22 |       console.error("Error logging out:", error)
+         |               ^
+      23 |       toast({
+      24 |         title: "Error",
+      25 |         description: "There was a problem logging you out. Please try again.",
+
+      at error (components/logout-button.tsx:22:15)
+
+(node:36100) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:17212) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+PASS __tests__/auth-flow.test.tsx (5.344 s)
+(node:11508) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+PASS __tests__/protected-routes-integration.test.tsx (5.381 s)
+(node:23008) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:19804) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+PASS __tests__/route-structure.test.tsx (5.634 s)
+PASS __tests__/components/pages/forgot-password-page.test.tsx (6.38 s)
+  ΓùÅ Console
+
+    console.error
+      Password reset error: { message: 'Email not found' }
+
+      45 |           variant: "destructive",
+      46 |         })
+    > 47 |         console.error("Password reset error:", error)
+         |                 ^
+      48 |       } else {
+      49 |         setIsSubmitted(true)
+      50 |         toast({
+
+      at error (components/pages/forgot-password-page.tsx:47:17)
+      at isSubmitted (node_modules/.pnpm/react-hook-form@7.55.0_react@19.1.0/node_modules/react-hook-form/src/logic/createFormControl.ts:1260:9)
+
+PASS __tests__/components/pages/login-page.test.tsx (7.159 s)
+  ΓùÅ Console
+
+    console.error
+      Login error: { message: 'Invalid credentials' }
+
+      54 |           variant: "destructive",
+      55 |         })
+    > 56 |         console.error("Login error:", error)
+         |                 ^
+      57 |       } else {
+      58 |         toast({
+      59 |           title: "Welcome back!",
+
+      at error (components/pages/login-page.tsx:56:17)
+      at isSubmitted (node_modules/.pnpm/react-hook-form@7.55.0_react@19.1.0/node_modules/react-hook-form/src/logic/createFormControl.ts:1260:9)
+
+PASS __tests__/components/pages/register-page.test.tsx (8.249 s)
+  ΓùÅ Console
+
+    console.error
+      Registration error: { message: 'Email already in use' }
+
+      69 |           variant: "destructive",
+      70 |         })
+    > 71 |         console.error("Registration error:", error)
+         |                 ^
+      72 |       } else {
+      73 |         toast({
+      74 |           title: "Account created",
+
+      at error (components/pages/register-page.tsx:71:17)
+      at isSubmitted (node_modules/.pnpm/react-hook-form@7.55.0_react@19.1.0/node_modules/react-hook-form/src/logic/createFormControl.ts:1260:9)
+
+
+Test Suites: 2 failed, 11 passed, 13 total
+Tests:       1 failed, 54 passed, 55 total
+Snapshots:   0 total
+Time:        10.658 s
+Ran all test suites.

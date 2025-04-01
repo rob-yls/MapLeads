@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { LogoutButton } from '@/components/logout-button';
 import { useAuth } from '@/hooks/use-auth';
@@ -35,9 +35,9 @@ describe('LogoutButton', () => {
     render(<LogoutButton />);
     
     // Check if the button is rendered
-    const logoutButton = screen.getByRole('button');
+    const logoutButton = screen.getByRole('button', { name: /logout/i });
     expect(logoutButton).toBeInTheDocument();
-    expect(screen.getByText('Logout')).toBeInTheDocument(); // Screen reader text
+    // The text is in a screen reader only span, so we check for the button with the accessible name
   });
 
   test('calls signOut when clicked', async () => {
@@ -87,7 +87,7 @@ describe('LogoutButton', () => {
     const user = userEvent.setup();
     
     // Create a promise that we can resolve manually to control the timing
-    let resolveSignOut: () => void;
+    let resolveSignOut: (value: void | PromiseLike<void>) => void;
     const signOutPromise = new Promise<void>((resolve) => {
       resolveSignOut = resolve;
     });
@@ -97,14 +97,16 @@ describe('LogoutButton', () => {
     render(<LogoutButton />);
     
     // Button should be enabled initially
-    const button = screen.getByRole('button');
+    const button = screen.getByRole('button', { name: /logout/i });
     expect(button).not.toBeDisabled();
     
     // Click the logout button
     const clickPromise = user.click(button);
     
-    // Button should be disabled during sign out
-    expect(button).toBeDisabled();
+    // Wait for the state to update (button to be disabled)
+    await waitFor(() => {
+      expect(button).toBeDisabled();
+    });
     
     // Resolve the sign out promise
     resolveSignOut!();
@@ -112,7 +114,9 @@ describe('LogoutButton', () => {
     // Wait for the click handler to complete
     await clickPromise;
     
-    // Button should be enabled again
-    expect(button).not.toBeDisabled();
+    // Wait for the state to update (button to be enabled again)
+    await waitFor(() => {
+      expect(button).not.toBeDisabled();
+    });
   });
 });

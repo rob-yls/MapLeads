@@ -1,0 +1,182 @@
+PASS __tests__/auth-service.test.ts
+PASS __tests__/auth-integration.test.ts
+(node:37160) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+FAIL __tests__/middleware.test.ts
+  ΓùÅ Console
+
+    console.error
+      Middleware error: Error: Supabase error
+          at Object.<anonymous> (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\__tests__\middleware.test.ts:93:52)
+          at Promise.then.completed (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-circus@29.7.0\node_modules\jest-circus\build\utils.js:298:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-circus@29.7.0\node_modules\jest-circus\build\utils.js:231:10)
+          at _callCircusTest (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-circus@29.7.0\node_modules\jest-circus\build\run.js:316:40)
+          at processTicksAndRejections (node:internal/process/task_queues:105:5)
+          at _runTest (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-circus@29.7.0\node_modules\jest-circus\build\run.js:252:3)
+          at _runTestsForDescribeBlock (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-circus@29.7.0\node_modules\jest-circus\build\run.js:126:9)
+          at _runTestsForDescribeBlock (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-circus@29.7.0\node_modules\jest-circus\build\run.js:121:9)
+          at run (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-circus@29.7.0\node_modules\jest-circus\build\run.js:71:3)
+          at runAndTransformResultsToJestFormat (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-circus@29.7.0\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapterInit.js:122:21)
+          at jestAdapter (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-circus@29.7.0\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapter.js:79:19)
+          at runTestInternal (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-runner@29.7.0\node_modules\jest-runner\build\runTest.js:367:16)
+          at runTest (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-runner@29.7.0\node_modules\jest-runner\build\runTest.js:444:34)
+          at Object.worker (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-runner@29.7.0\node_modules\jest-runner\build\testWorker.js:106:12)
+
+      31 |     return res
+      32 |   } catch (error) {
+    > 33 |     console.error('Middleware error:', error)
+         |             ^
+      34 |     
+      35 |     // If there's an error with Supabase (like missing env vars), 
+      36 |     // we'll just continue without auth checks for development purposes
+
+      at error (middleware.ts:33:13)
+      at Object.<anonymous> (__tests__/middleware.test.ts:95:5)
+
+  ΓùÅ Auth Middleware ΓÇ║ redirects to login when accessing protected routes without authentication
+
+    expect(received).toContain(expected) // indexOf
+
+    Expected value:  "/login?redirectTo=%2Fdashboard"
+    Received object: "http://localhost:3000/login?redirectTo=%2Fdashboard"
+
+      69 |     expect(NextResponse.redirect).toHaveBeenCalled();
+      70 |     const redirectCall = (NextResponse.redirect as jest.Mock).mock.calls[0][0];
+    > 71 |     expect(redirectCall).toContain('/login?redirectTo=%2Fdashboard');
+         |                          ^
+      72 |   })
+      73 |   
+      74 |   test('allows access to public routes without authentication', async () => {
+
+      at Object.toContain (__tests__/middleware.test.ts:71:26)
+
+(node:12748) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:23020) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:37440) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+PASS __tests__/protected-routes.test.tsx
+(node:13372) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+PASS __tests__/hooks/use-auth.test.tsx (5.074 s)
+(node:35656) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:26960) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+PASS __tests__/protected-routes-integration.test.tsx (5.446 s)
+(node:25864) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+PASS __tests__/auth-flow.test.tsx (5.425 s)
+PASS __tests__/components/logout-button.test.tsx (5.467 s)
+  ΓùÅ Console
+
+    console.error
+      Error logging out: Error: Sign out failed
+          at Object.<anonymous> (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\__tests__\components\logout-button.test.tsx:68:35)
+          at Promise.then.completed (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-circus@29.7.0\node_modules\jest-circus\build\utils.js:298:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-circus@29.7.0\node_modules\jest-circus\build\utils.js:231:10)
+          at _callCircusTest (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-circus@29.7.0\node_modules\jest-circus\build\run.js:316:40)
+          at _runTest (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-circus@29.7.0\node_modules\jest-circus\build\run.js:252:3)
+          at _runTestsForDescribeBlock (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-circus@29.7.0\node_modules\jest-circus\build\run.js:126:9)
+          at _runTestsForDescribeBlock (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-circus@29.7.0\node_modules\jest-circus\build\run.js:121:9)
+          at run (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-circus@29.7.0\node_modules\jest-circus\build\run.js:71:3)
+          at runAndTransformResultsToJestFormat (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-circus@29.7.0\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapterInit.js:122:21)
+          at jestAdapter (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-circus@29.7.0\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapter.js:79:19)
+          at runTestInternal (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-runner@29.7.0\node_modules\jest-runner\build\runTest.js:367:16)
+          at runTest (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-runner@29.7.0\node_modules\jest-runner\build\runTest.js:444:34)
+          at Object.worker (C:\Users\rob\Documents\Software\SaaS\MapLeads\MapLeads-Wv1\node_modules\.pnpm\jest-runner@29.7.0\node_modules\jest-runner\build\testWorker.js:106:12)
+
+      20 |       })
+      21 |     } catch (error) {
+    > 22 |       console.error("Error logging out:", error)
+         |               ^
+      23 |       toast({
+      24 |         title: "Error",
+      25 |         description: "There was a problem logging you out. Please try again.",
+
+      at error (components/logout-button.tsx:22:15)
+
+(node:36684) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:19212) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:32912) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+PASS __tests__/route-structure.test.tsx (5.819 s)
+PASS __tests__/components/pages/forgot-password-page.test.tsx (6.357 s)
+  ΓùÅ Console
+
+    console.error
+      Password reset error: { message: 'Email not found' }
+
+      45 |           variant: "destructive",
+      46 |         })
+    > 47 |         console.error("Password reset error:", error)
+         |                 ^
+      48 |       } else {
+      49 |         setIsSubmitted(true)
+      50 |         toast({
+
+      at error (components/pages/forgot-password-page.tsx:47:17)
+      at isSubmitted (node_modules/.pnpm/react-hook-form@7.55.0_react@19.1.0/node_modules/react-hook-form/src/logic/createFormControl.ts:1260:9)
+
+PASS __tests__/components/pages/login-page.test.tsx (7.163 s)
+  ΓùÅ Console
+
+    console.error
+      Login error: { message: 'Invalid credentials' }
+
+      54 |           variant: "destructive",
+      55 |         })
+    > 56 |         console.error("Login error:", error)
+         |                 ^
+      57 |       } else {
+      58 |         toast({
+      59 |           title: "Welcome back!",
+
+      at error (components/pages/login-page.tsx:56:17)
+      at isSubmitted (node_modules/.pnpm/react-hook-form@7.55.0_react@19.1.0/node_modules/react-hook-form/src/logic/createFormControl.ts:1260:9)
+
+PASS __tests__/components/pages/register-page.test.tsx (8.613 s)
+  ΓùÅ Console
+
+    console.error
+      Registration error: { message: 'Email already in use' }
+
+      69 |           variant: "destructive",
+      70 |         })
+    > 71 |         console.error("Registration error:", error)
+         |                 ^
+      72 |       } else {
+      73 |         toast({
+      74 |           title: "Account created",
+
+      at error (components/pages/register-page.tsx:71:17)
+      at isSubmitted (node_modules/.pnpm/react-hook-form@7.55.0_react@19.1.0/node_modules/react-hook-form/src/logic/createFormControl.ts:1260:9)
+
+FAIL __tests__/auth-context.test.tsx (14.608 s)
+  ΓùÅ Auth Context ΓÇ║ should provide authentication methods
+
+    thrown: "Exceeded timeout of 10000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      43 |
+      44 | describe('Auth Context', () => {
+    > 45 |   it('should provide authentication methods', async () => {
+         |   ^
+      46 |     const { result } = renderHook(() => useAuth(), { wrapper });
+      47 |     
+      48 |     // Wait for initialization
+
+      at it (__tests__/auth-context.test.tsx:45:3)
+      at Object.describe (__tests__/auth-context.test.tsx:44:1)
+
+A worker process has failed to exit gracefully and has been force exited. This is likely caused by tests leaking due to improper teardown. Try running with --detectOpenHandles to find leaks. Active timers can also cause this, ensure that .unref() was called on them.
+Test Suites: 2 failed, 11 passed, 13 total
+Tests:       2 failed, 54 passed, 56 total
+Snapshots:   0 total
+Time:        17.647 s
+Ran all test suites.

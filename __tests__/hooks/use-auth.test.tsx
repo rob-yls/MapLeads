@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { useAuth, AuthProvider } from '@/hooks/use-auth';
 import { supabase } from '@/lib/supabase';
 import { ReactNode } from 'react';
@@ -63,12 +63,9 @@ describe('useAuth hook', () => {
     expect(result.current.session).toBe(null);
     
     // Wait for initialization to complete
-    await act(async () => {
-      await Promise.resolve();
-    });
-    
-    // After initialization, loading should be false
-    expect(result.current.isLoading).toBe(false);
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    }, { timeout: 5000 });
   });
 
   test('should sign in user successfully', async () => {
@@ -84,17 +81,18 @@ describe('useAuth hook', () => {
     const { result } = renderHook(() => useAuth(), { wrapper });
     
     // Wait for initialization
-    await act(async () => {
-      await Promise.resolve();
-    });
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    }, { timeout: 5000 });
     
     // Perform sign in
+    let signInResponse: { error: any } | undefined;
     await act(async () => {
-      const response = await result.current.signIn('test@example.com', 'password123');
-      expect(response.error).toBeNull();
+      signInResponse = await result.current.signIn('test@example.com', 'password123');
     });
     
-    // Verify supabase was called with correct params
+    // Verify response and supabase call
+    expect(signInResponse?.error).toBeNull();
     expect(supabase.auth.signInWithPassword).toHaveBeenCalledWith({
       email: 'test@example.com',
       password: 'password123',
@@ -112,15 +110,18 @@ describe('useAuth hook', () => {
     const { result } = renderHook(() => useAuth(), { wrapper });
     
     // Wait for initialization
-    await act(async () => {
-      await Promise.resolve();
-    });
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    }, { timeout: 5000 });
     
     // Perform sign in
+    let signInResponse: { error: any } | undefined;
     await act(async () => {
-      const response = await result.current.signIn('test@example.com', 'wrong-password');
-      expect(response.error).toBe(mockError);
+      signInResponse = await result.current.signIn('test@example.com', 'wrong-password');
     });
+    
+    // Verify error response
+    expect(signInResponse?.error).toBe(mockError);
   });
 
   test('should sign up user successfully', async () => {
@@ -133,17 +134,18 @@ describe('useAuth hook', () => {
     const { result } = renderHook(() => useAuth(), { wrapper });
     
     // Wait for initialization
-    await act(async () => {
-      await Promise.resolve();
-    });
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    }, { timeout: 5000 });
     
     // Perform sign up
+    let signUpResponse: { error: any } | undefined;
     await act(async () => {
-      const response = await result.current.signUp('new@example.com', 'newpassword123');
-      expect(response.error).toBeNull();
+      signUpResponse = await result.current.signUp('new@example.com', 'newpassword123');
     });
     
-    // Verify supabase was called with correct params
+    // Verify response and supabase call
+    expect(signUpResponse?.error).toBeNull();
     expect(supabase.auth.signUp).toHaveBeenCalledWith({
       email: 'new@example.com',
       password: 'newpassword123',
@@ -160,17 +162,18 @@ describe('useAuth hook', () => {
     const { result } = renderHook(() => useAuth(), { wrapper });
     
     // Wait for initialization
-    await act(async () => {
-      await Promise.resolve();
-    });
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    }, { timeout: 5000 });
     
     // Perform password reset
+    let resetResponse: { error: any } | undefined;
     await act(async () => {
-      const response = await result.current.resetPassword('test@example.com');
-      expect(response.error).toBeNull();
+      resetResponse = await result.current.resetPassword('test@example.com');
     });
     
-    // Verify supabase was called with correct params
+    // Verify response and supabase call
+    expect(resetResponse?.error).toBeNull();
     expect(supabase.auth.resetPasswordForEmail).toHaveBeenCalledWith(
       'test@example.com',
       { redirectTo: 'http://localhost:3000/reset-password' }
@@ -186,9 +189,9 @@ describe('useAuth hook', () => {
     const { result } = renderHook(() => useAuth(), { wrapper });
     
     // Wait for initialization
-    await act(async () => {
-      await Promise.resolve();
-    });
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    }, { timeout: 5000 });
     
     // Perform sign out
     await act(async () => {
