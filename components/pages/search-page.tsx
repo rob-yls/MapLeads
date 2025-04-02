@@ -150,8 +150,11 @@ export default function SearchPage() {
       .map(transformBusinessForUI)
       .filter(business => {
         // Filter by rating if specified
-        if (filters.ratingRange && business.rating < filters.ratingRange[0]) {
-          return false
+        if (filters.ratingRange) {
+          const [minRating, maxRating] = filters.ratingRange;
+          if (business.rating < minRating || business.rating > maxRating) {
+            return false;
+          }
         }
 
         // Filter by having a website if specified

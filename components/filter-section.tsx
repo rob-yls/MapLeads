@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Slider } from "@/components/ui/slider"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { HelpCircle } from "lucide-react"
@@ -18,6 +17,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import * as SliderPrimitive from "@radix-ui/react-slider"
 import type { FilterValues } from "@/components/map-leads-app"
 
 const formSchema = z.object({
@@ -195,33 +195,66 @@ export function FilterSection({ onFilterChange }: FilterSectionProps) {
               <FormField
                 control={form.control}
                 name="ratingRange"
-                render={({ field }) => (
-                  <FormItem>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <FormLabel>
-                            Rating Range: {field.value[0].toFixed(1)} - {field.value[1].toFixed(1)}{" "}
-                            <HelpCircle size={16} className="ml-1 text-gray-400" />
-                          </FormLabel>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          Filter by the rating range of the business.
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                    <FormControl>
-                      <Slider
-                        min={0}
-                        max={5}
-                        step={0.1}
-                        value={field.value}
-                        onValueChange={field.onChange}
-                        className="py-4"
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
+                render={({ field }) => {
+                  const [hoveredThumb, setHoveredThumb] = React.useState<number | null>(null);
+                  const [isDragging, setIsDragging] = React.useState(false);
+                  
+                  return (
+                    <FormItem>
+                      <FormLabel>
+                        Rating Range: {field.value[0].toFixed(1)} - {field.value[1].toFixed(1)} stars
+                      </FormLabel>
+                      <FormControl>
+                        <div className="relative pt-6 pb-4">
+                          <SliderPrimitive.Root
+                            min={0}
+                            max={5}
+                            step={0.1}
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            className="relative flex w-full touch-none select-none items-center py-4"
+                            onPointerDown={() => setIsDragging(true)}
+                            onPointerUp={() => setIsDragging(false)}
+                          >
+                            <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-secondary">
+                              <SliderPrimitive.Range className="absolute h-full bg-primary" />
+                            </SliderPrimitive.Track>
+                            
+                            <TooltipProvider>
+                              <Tooltip open={hoveredThumb === 0 || (isDragging && field.value[0] !== 0)}>
+                                <TooltipTrigger asChild>
+                                  <SliderPrimitive.Thumb 
+                                    className="block h-5 w-5 rounded-full border-2 border-primary bg-background ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" 
+                                    onMouseEnter={() => setHoveredThumb(0)}
+                                    onMouseLeave={() => setHoveredThumb(null)}
+                                  />
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="text-xs font-medium">
+                                  Min: {field.value[0].toFixed(1)} stars
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                            
+                            <TooltipProvider>
+                              <Tooltip open={hoveredThumb === 1 || (isDragging && field.value[1] !== 5)}>
+                                <TooltipTrigger asChild>
+                                  <SliderPrimitive.Thumb 
+                                    className="block h-5 w-5 rounded-full border-2 border-primary bg-background ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" 
+                                    onMouseEnter={() => setHoveredThumb(1)}
+                                    onMouseLeave={() => setHoveredThumb(null)}
+                                  />
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="text-xs font-medium">
+                                  Max: {field.value[1].toFixed(1)} stars
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </SliderPrimitive.Root>
+                        </div>
+                      </FormControl>
+                    </FormItem>
+                  );
+                }}
               />
 
               <div>
