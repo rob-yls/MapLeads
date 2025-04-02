@@ -1,6 +1,5 @@
 "use client"
 
-import { AppShell } from "@/components/app-shell"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
@@ -77,7 +76,7 @@ const savedSearches = [
 
 export default function HistoryPage() {
   return (
-    <AppShell>
+    <div className="space-y-4">
       <Tabs defaultValue="search-history" className="space-y-4">
         <TabsList>
           <TabsTrigger value="search-history">Search History</TabsTrigger>
@@ -183,7 +182,6 @@ export default function HistoryPage() {
           </Card>
         </TabsContent>
       </Tabs>
-    </AppShell>
+    </div>
   )
 }
-

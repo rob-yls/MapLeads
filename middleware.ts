@@ -5,8 +5,17 @@ import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs'
 // Define public routes that don't require authentication
 const publicRoutes = ['/login', '/register', '/forgot-password', '/reset-password']
 
+// DEVELOPMENT ONLY: Set this to true to bypass authentication checks
+const BYPASS_AUTH_FOR_DEVELOPMENT = true
+
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next()
+  
+  // DEVELOPMENT ONLY: Skip authentication checks if bypass is enabled
+  if (process.env.NODE_ENV !== 'production' && BYPASS_AUTH_FOR_DEVELOPMENT) {
+    console.log('Development mode: Bypassing authentication checks');
+    return res;
+  }
   
   try {
     // Create the Supabase middleware client

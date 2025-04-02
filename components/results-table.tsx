@@ -2,7 +2,7 @@
 import { useState } from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import type { Business } from "@/components/map-leads-app"
-import { ExternalLink, Mail, Phone, ChevronLeft, ChevronRight } from "lucide-react"
+import { ExternalLink, Mail, Phone, ChevronLeft, ChevronRight, Map } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -15,11 +15,100 @@ import {
   DialogClose,
 } from "@/components/ui/dialog"
 
-interface ResultsTableProps {
-  data: Business[]
+// Define our own ColumnDef type instead of importing from @tanstack/react-table
+export interface ColumnDef<T> {
+  accessorKey: keyof T | string;
+  header: string | React.ReactNode;
+  cell?: (props: { row: { original: T; getValue: (key: string) => any } }) => React.ReactNode;
 }
 
-export function ResultsTable({ data }: ResultsTableProps) {
+interface ResultsTableProps {
+  data: Business[]
+  columns?: ColumnDef<Business>[]
+}
+
+// Create a reusable pagination component to avoid duplicate code and key issues
+function PaginationControls({
+  currentPage,
+  totalPages,
+  goToPage,
+  position,
+}: {
+  currentPage: number;
+  totalPages: number;
+  goToPage: (page: number) => void;
+  position: 'top' | 'bottom';
+}) {
+  return (
+    <div className="flex items-center space-x-1">
+      {/* First page */}
+      {currentPage > 3 && (
+        <Button
+          variant={currentPage === 1 ? "default" : "outline"}
+          size="sm"
+          className="h-8 w-8 p-0"
+          onClick={() => goToPage(1)}
+          key={`${position}-first-page`}
+        >
+          1
+        </Button>
+      )}
+
+      {/* Ellipsis if needed */}
+      {currentPage > 4 && <span className="mx-1" key={`${position}-ellipsis-start`}>...</span>}
+
+      {/* Page numbers around current page */}
+      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+        // Calculate which page numbers to show
+        let pageNum;
+        if (currentPage <= 3) {
+          // If near the start, show first 5 pages
+          pageNum = i + 1;
+        } else if (currentPage >= totalPages - 2) {
+          // If near the end, show last 5 pages
+          pageNum = totalPages - 4 + i;
+        } else {
+          // Otherwise show 2 before and 2 after current page
+          pageNum = currentPage - 2 + i;
+        }
+
+        // Only render if the page number is valid
+        if (pageNum > 0 && pageNum <= totalPages) {
+          return (
+            <Button
+              key={`${position}-page-${pageNum}`}
+              variant={currentPage === pageNum ? "default" : "outline"}
+              size="sm"
+              className="h-8 w-8 p-0"
+              onClick={() => goToPage(pageNum)}
+            >
+              {pageNum}
+            </Button>
+          );
+        }
+        return null;
+      })}
+
+      {/* Ellipsis if needed */}
+      {currentPage < totalPages - 3 && <span className="mx-1" key={`${position}-ellipsis-end`}>...</span>}
+
+      {/* Last page */}
+      {currentPage < totalPages - 2 && totalPages > 5 && (
+        <Button
+          variant={currentPage === totalPages ? "default" : "outline"}
+          size="sm"
+          className="h-8 w-8 p-0"
+          onClick={() => goToPage(totalPages)}
+          key={`${position}-last-page`}
+        >
+          {totalPages}
+        </Button>
+      )}
+    </div>
+  );
+}
+
+export function ResultsTable({ data, columns }: ResultsTableProps) {
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null)
@@ -58,6 +147,24 @@ export function ResultsTable({ data }: ResultsTableProps) {
     )
   }
 
+  // Reusable page size selector component
+  const PageSizeSelector = ({ id }: { id: string }) => (
+    <div className="flex items-center space-x-2">
+      <p className="text-sm text-muted-foreground">Rows per page</p>
+      <Select value={pageSize.toString()} onValueChange={handlePageSizeChange}>
+        <SelectTrigger className="h-8 w-[70px]" id={`page-size-trigger-${id}`}>
+          <SelectValue placeholder={pageSize.toString()} />
+        </SelectTrigger>
+        <SelectContent id={`page-size-content-${id}`}>
+          <SelectItem value="5" key={`${id}-size-5`}>5</SelectItem>
+          <SelectItem value="10" key={`${id}-size-10`}>10</SelectItem>
+          <SelectItem value="20" key={`${id}-size-20`}>20</SelectItem>
+          <SelectItem value="50" key={`${id}-size-50`}>50</SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
+  );
+
   return (
     <div className="space-y-4 w-full">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
@@ -67,20 +174,7 @@ export function ResultsTable({ data }: ResultsTableProps) {
             <span className="font-medium">{Math.min(endIndex, data.length)}</span> of{" "}
             <span className="font-medium">{data.length}</span> results
           </p>
-          <div className="flex items-center space-x-2">
-            <p className="text-sm text-muted-foreground">Rows per page</p>
-            <Select value={pageSize.toString()} onValueChange={handlePageSizeChange}>
-              <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue placeholder={pageSize.toString()} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="5">5</SelectItem>
-                <SelectItem value="10">10</SelectItem>
-                <SelectItem value="20">20</SelectItem>
-                <SelectItem value="50">50</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <PageSizeSelector id="top" />
         </div>
 
         <div className="flex items-center space-x-2">
@@ -89,69 +183,12 @@ export function ResultsTable({ data }: ResultsTableProps) {
             <span className="sr-only">Previous Page</span>
           </Button>
 
-          <div className="flex items-center space-x-1">
-            {/* First page */}
-            {currentPage > 3 && (
-              <Button
-                variant={currentPage === 1 ? "default" : "outline"}
-                size="sm"
-                className="h-8 w-8 p-0"
-                onClick={() => goToPage(1)}
-              >
-                1
-              </Button>
-            )}
-
-            {/* Ellipsis if needed */}
-            {currentPage > 4 && <span className="mx-1">...</span>}
-
-            {/* Page numbers around current page */}
-            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-              // Calculate which page numbers to show
-              let pageNum
-              if (currentPage <= 3) {
-                // If near the start, show first 5 pages
-                pageNum = i + 1
-              } else if (currentPage >= totalPages - 2) {
-                // If near the end, show last 5 pages
-                pageNum = totalPages - 4 + i
-              } else {
-                // Otherwise show 2 before and 2 after current page
-                pageNum = currentPage - 2 + i
-              }
-
-              // Only render if the page number is valid
-              if (pageNum > 0 && pageNum <= totalPages) {
-                return (
-                  <Button
-                    key={pageNum}
-                    variant={currentPage === pageNum ? "default" : "outline"}
-                    size="sm"
-                    className="h-8 w-8 p-0"
-                    onClick={() => goToPage(pageNum)}
-                  >
-                    {pageNum}
-                  </Button>
-                )
-              }
-              return null
-            })}
-
-            {/* Ellipsis if needed */}
-            {currentPage < totalPages - 3 && <span className="mx-1">...</span>}
-
-            {/* Last page */}
-            {currentPage < totalPages - 2 && totalPages > 5 && (
-              <Button
-                variant={currentPage === totalPages ? "default" : "outline"}
-                size="sm"
-                className="h-8 w-8 p-0"
-                onClick={() => goToPage(totalPages)}
-              >
-                {totalPages}
-              </Button>
-            )}
-          </div>
+          <PaginationControls 
+            currentPage={currentPage} 
+            totalPages={totalPages} 
+            goToPage={goToPage} 
+            position="top" 
+          />
 
           <Button
             variant="outline"
@@ -164,95 +201,33 @@ export function ResultsTable({ data }: ResultsTableProps) {
           </Button>
         </div>
       </div>
-      <div className="rounded-md border">
-        <div className="table-container w-full overflow-x-auto" style={{ minWidth: "100%" }}>
-          <Table className="w-full">
-            <TableHeader className="sticky top-0 bg-background z-10">
-              <TableRow className="h-10">
-                <TableHead className="min-w-[200px] py-2">Business Name</TableHead>
-                <TableHead className="min-w-[200px] py-2">Street</TableHead>
-                <TableHead className="min-w-[150px] py-2">City</TableHead>
-                <TableHead className="min-w-[100px] py-2">Rating</TableHead>
-                <TableHead className="min-w-[150px] py-2">Phone</TableHead>
-                <TableHead className="min-w-[200px] py-2">Email</TableHead>
-                <TableHead className="min-w-[200px] py-2">Website</TableHead>
-                <TableHead className="min-w-[300px] py-2">Description</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {currentData.map((business) => (
-                <TableRow key={business.id} className="h-10">
-                  <TableCell className="font-medium break-words py-2">{business.name}</TableCell>
-                  <TableCell className="break-words py-2">{business.street}</TableCell>
-                  <TableCell className="break-words py-2">{business.city}</TableCell>
-                  <TableCell className="py-2">
-                    <Badge variant="secondary">{business.rating.toFixed(1)}</Badge>
-                  </TableCell>
-                  <TableCell className="py-2">
-                    {business.phone ? (
-                      <a
-                        href={`tel:${business.phone}`}
-                        className="flex items-center gap-1 text-blue-600 hover:underline"
-                      >
-                        <Phone className="h-3 w-3 flex-shrink-0" />
-                        <span className="break-words">{business.phone}</span>
-                      </a>
-                    ) : (
-                      <span className="text-muted-foreground">N/A</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="py-2">
-                    {business.email ? (
-                      <a
-                        href={`mailto:${business.email}`}
-                        className="flex items-center gap-1 text-blue-600 hover:underline"
-                      >
-                        <Mail className="h-3 w-3 flex-shrink-0" />
-                        <span className="break-words">{business.email}</span>
-                      </a>
-                    ) : (
-                      <span className="text-muted-foreground">N/A</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="py-2">
-                    {business.website ? (
-                      <a
-                        href={business.website}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1 text-blue-600 hover:underline"
-                      >
-                        <ExternalLink className="h-3 w-3 flex-shrink-0" />
-                        <span className="break-words whitespace-nowrap overflow-hidden text-ellipsis max-w-[180px]">
-                          {formatWebsiteUrl(business.website)}
-                        </span>
-                      </a>
-                    ) : (
-                      <span className="text-muted-foreground">N/A</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="py-2">
-                    <div className="flex items-center space-x-1 max-w-[300px]">
-                      <div className="whitespace-nowrap overflow-hidden text-ellipsis">
-                        {business.description.length > 50
-                          ? business.description.substring(0, 50)
-                          : business.description}
-                      </div>
-                      {business.description.length > 50 && (
-                        <button
-                          onClick={() => openDescriptionModal(business)}
-                          className="text-blue-600 hover:underline whitespace-nowrap font-bold text-xs"
-                        >
-                          ...READ MORE
-                        </button>
-                      )}
-                    </div>
-                  </TableCell>
-                </TableRow>
+
+      <div className="rounded-md border overflow-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              {columns?.map((column, index) => (
+                <TableHead key={`header-${index}`} className="whitespace-nowrap">
+                  {column.header}
+                </TableHead>
               ))}
-            </TableBody>
-          </Table>
-        </div>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {currentData.map((row, rowIndex) => (
+              <TableRow key={`row-${rowIndex}`}>
+                {columns?.map((column, columnIndex) => (
+                  <TableCell 
+                    key={`cell-${rowIndex}-${columnIndex}`} 
+                    className="py-2"
+                  >
+                    {column.cell ? column.cell({ row: { original: row, getValue: (key) => row[key as keyof Business] } }) : row[column.accessorKey as keyof Business]}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-4">
@@ -262,20 +237,7 @@ export function ResultsTable({ data }: ResultsTableProps) {
             <span className="font-medium">{Math.min(endIndex, data.length)}</span> of{" "}
             <span className="font-medium">{data.length}</span> results
           </p>
-          <div className="flex items-center space-x-2">
-            <p className="text-sm text-muted-foreground">Rows per page</p>
-            <Select value={pageSize.toString()} onValueChange={handlePageSizeChange}>
-              <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue placeholder={pageSize.toString()} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="5">5</SelectItem>
-                <SelectItem value="10">10</SelectItem>
-                <SelectItem value="20">20</SelectItem>
-                <SelectItem value="50">50</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <PageSizeSelector id="bottom" />
         </div>
 
         <div className="flex items-center space-x-2">
@@ -284,69 +246,12 @@ export function ResultsTable({ data }: ResultsTableProps) {
             <span className="sr-only">Previous Page</span>
           </Button>
 
-          <div className="flex items-center space-x-1">
-            {/* First page */}
-            {currentPage > 3 && (
-              <Button
-                variant={currentPage === 1 ? "default" : "outline"}
-                size="sm"
-                className="h-8 w-8 p-0"
-                onClick={() => goToPage(1)}
-              >
-                1
-              </Button>
-            )}
-
-            {/* Ellipsis if needed */}
-            {currentPage > 4 && <span className="mx-1">...</span>}
-
-            {/* Page numbers around current page */}
-            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-              // Calculate which page numbers to show
-              let pageNum
-              if (currentPage <= 3) {
-                // If near the start, show first 5 pages
-                pageNum = i + 1
-              } else if (currentPage >= totalPages - 2) {
-                // If near the end, show last 5 pages
-                pageNum = totalPages - 4 + i
-              } else {
-                // Otherwise show 2 before and 2 after current page
-                pageNum = currentPage - 2 + i
-              }
-
-              // Only render if the page number is valid
-              if (pageNum > 0 && pageNum <= totalPages) {
-                return (
-                  <Button
-                    key={pageNum}
-                    variant={currentPage === pageNum ? "default" : "outline"}
-                    size="sm"
-                    className="h-8 w-8 p-0"
-                    onClick={() => goToPage(pageNum)}
-                  >
-                    {pageNum}
-                  </Button>
-                )
-              }
-              return null
-            })}
-
-            {/* Ellipsis if needed */}
-            {currentPage < totalPages - 3 && <span className="mx-1">...</span>}
-
-            {/* Last page */}
-            {currentPage < totalPages - 2 && totalPages > 5 && (
-              <Button
-                variant={currentPage === totalPages ? "default" : "outline"}
-                size="sm"
-                className="h-8 w-8 p-0"
-                onClick={() => goToPage(totalPages)}
-              >
-                {totalPages}
-              </Button>
-            )}
-          </div>
+          <PaginationControls 
+            currentPage={currentPage} 
+            totalPages={totalPages} 
+            goToPage={goToPage} 
+            position="bottom" 
+          />
 
           <Button
             variant="outline"
@@ -366,7 +271,11 @@ export function ResultsTable({ data }: ResultsTableProps) {
           <DialogHeader>
             <DialogTitle>{selectedBusiness?.name}</DialogTitle>
             <DialogDescription>
-              {selectedBusiness?.street}, {selectedBusiness?.city}
+              {selectedBusiness?.street}
+              {selectedBusiness?.address2 && `, ${selectedBusiness?.address2}`}
+              {selectedBusiness?.city && `, ${selectedBusiness?.city}`}
+              {selectedBusiness?.state && `, ${selectedBusiness?.state}`}
+              {selectedBusiness?.zipCode && ` ${selectedBusiness?.zipCode}`}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -388,4 +297,3 @@ export function ResultsTable({ data }: ResultsTableProps) {
     </div>
   )
 }
-

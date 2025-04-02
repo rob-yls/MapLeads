@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import type { Database, User, Search, Business, SearchResult, Lead } from '../types/database';
 
 // These environment variables will be set in .env.local
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder-url.supabase.co';
@@ -10,7 +11,7 @@ if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_A
 }
 
 // Create a single supabase client for interacting with your database
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
 
 // Mock Supabase auth methods for development when credentials are not available
 if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
@@ -26,34 +27,5 @@ if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_A
   } as any;
 }
 
-// Types for Supabase tables
-export type User = {
-  id: string;
-  email: string;
-  created_at: string;
-};
-
-export type Search = {
-  id: string;
-  user_id: string;
-  business_type: string;
-  location: string;
-  timestamp: string;
-};
-
-export type Result = {
-  id: string;
-  search_id: string;
-  business_name: string;
-  address: {
-    street: string;
-    city: string;
-  };
-  rating: number;
-  contact_info: {
-    phone: string | null;
-    email: string | null;
-    website: string | null;
-  };
-  description: string;
-};
+// Export types for convenience
+export type { User, Search, Business, SearchResult, Lead } from '../types/database';

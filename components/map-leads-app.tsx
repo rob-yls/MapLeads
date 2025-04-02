@@ -29,58 +29,68 @@ export default function MapLeadsApp() {
       {
         id: "1",
         name: "Sunrise Cafe",
+        formatted_address: "123 Main St, Portland, OR 97201",
         street: "123 Main St",
         city: "Portland",
         rating: 4.5,
         phone: "503-555-1234",
-        email: "info@sunrisecafe.com",
+        email: undefined,
         website: "https://sunrisecafe.com",
-        description: "Cozy cafe with great breakfast options",
+        description: "A cozy cafe serving breakfast and lunch",
+        googleMapUrl: "https://maps.google.com/?q=Sunrise+Cafe+Portland"
       },
       {
         id: "2",
         name: "Downtown Dental",
+        formatted_address: "456 Park Ave, Portland, OR 97201",
         street: "456 Park Ave",
         city: "Portland",
         rating: 4.8,
         phone: "503-555-5678",
-        email: "appointments@downtowndental.com",
+        email: "info@downtowndental.com",
         website: "https://downtowndental.com",
-        description: "Modern dental practice with gentle care",
+        description: "Professional dental care in the heart of downtown",
+        googleMapUrl: "https://maps.google.com/?q=Downtown+Dental+Portland"
       },
       {
         id: "3",
         name: "Tech Solutions",
+        formatted_address: "789 Broadway, Portland, OR 97201",
         street: "789 Broadway",
         city: "Portland",
         rating: 4.2,
         phone: "503-555-9012",
-        email: null,
+        email: "support@techsolutions.com",
         website: "https://techsolutions.com",
-        description: "IT support and consulting services",
+        description: "IT support and computer repair services",
+        googleMapUrl: "https://maps.google.com/?q=Tech+Solutions+Portland"
       },
       {
         id: "4",
         name: "Green Thumb Nursery",
+        formatted_address: "101 Garden Way, Beaverton, OR 97006",
         street: "101 Garden Way",
         city: "Beaverton",
         rating: 4.7,
         phone: "503-555-3456",
-        email: "plants@greenthumb.com",
-        website: null,
-        description: "Local plant nursery with organic options",
+        email: "info@greenthumb.com",
+        website: "https://greenthumb.com",
+        description: "Plants, gardening supplies, and expert advice",
+        googleMapUrl: "https://maps.google.com/?q=Green+Thumb+Nursery+Beaverton"
       },
       {
         id: "5",
         name: "Riverfront Restaurant",
+        formatted_address: "202 Water St, Portland, OR 97201",
         street: "202 Water St",
         city: "Portland",
         rating: 4.3,
-        phone: null,
-        email: "reservations@riverfrontrestaurant.com",
-        website: "https://riverfrontrestaurant.com",
-        description: "Upscale dining with river views",
-      },
+        phone: "503-555-7890",
+        email: undefined,
+        website: "https://riverfrontpdx.com",
+        description: "Fine dining with river views",
+        googleMapUrl: "https://maps.google.com/?q=Riverfront+Restaurant+Portland"
+      }
     ]
 
     setSearchResults(mockData)
@@ -135,15 +145,15 @@ export default function MapLeadsApp() {
     }
 
     if (filters.hasPhone) {
-      filtered = filtered.filter((business) => business.phone !== null)
+      filtered = filtered.filter((business) => business.phone !== undefined)
     }
 
     if (filters.hasEmail) {
-      filtered = filtered.filter((business) => business.email !== null)
+      filtered = filtered.filter((business) => business.email !== undefined)
     }
 
     if (filters.hasWebsite) {
-      filtered = filtered.filter((business) => business.website !== null)
+      filtered = filtered.filter((business) => business.website !== undefined)
     }
 
     setFilteredResults(filtered)
@@ -267,13 +277,18 @@ export default function MapLeadsApp() {
 export interface Business {
   id: string
   name: string
+  formatted_address: string
   street: string
+  address2?: string
   city: string
+  state?: string
+  zipCode?: string
   rating: number
-  phone: string | null
-  email: string | null
-  website: string | null
+  phone: string | undefined
+  email: string | undefined
+  website: string | undefined
   description: string
+  googleMapUrl?: string
 }
 
 export interface SearchHistoryItem {
@@ -292,4 +307,3 @@ export interface FilterValues {
   hasEmail: boolean
   hasWebsite: boolean
 }
-

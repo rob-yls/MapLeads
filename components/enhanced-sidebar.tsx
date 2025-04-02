@@ -60,15 +60,23 @@ export function EnhancedSidebar({
           )}
         >
           <div className={cn("flex-1 w-full overflow-y-auto overflow-x-hidden flex flex-col px-0")}>
-            {React.Children.map(children, (child) =>
-              React.isValidElement(child)
-                ? React.cloneElement(child as React.ReactElement<any>, { isCollapsed: !isOpen })
-                : child,
-            )}
+            {React.Children.map(children, (child) => {
+              // Only pass isCollapsed to valid React elements that might accept this prop
+              if (React.isValidElement(child)) {
+                // Check if the component type is a custom component (not a DOM element)
+                // DOM elements like 'div', 'span' etc. have typeof string
+                const isCustomComponent = typeof child.type !== 'string';
+                
+                // Only pass isCollapsed to custom components, not to DOM elements
+                if (isCustomComponent) {
+                  return React.cloneElement(child as React.ReactElement<any>, { isCollapsed: !isOpen });
+                }
+              }
+              return child;
+            })}
           </div>
         </div>
       </div>
     </TooltipProvider>
   )
 }
-

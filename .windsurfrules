@@ -199,6 +199,19 @@ You are a senior TypeScript programmer with experience in the NestJS framework a
 - Write end to end tests for each api module.
 - Add a admin/test method to each controller as a smoke test.
 
+API DOCUMENTATION SPECIFIC TO THIS PROJECT:
+# Google Places API
+https://developers.google.com/maps/documentation/places/web-service
+
+# Google Maps JS API
+https://developers.google.com/maps/documentation/javascript/overview
+
+# Google Maps API
+https://developers.google.com/maps/documentation
+
+# Anthropic API Developer Documentation
+https://docs.anthropic.com/en/home
+
 
 Here are some best practices and rules you must follow:
 

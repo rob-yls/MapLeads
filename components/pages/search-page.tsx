@@ -1,242 +1,409 @@
 "use client"
 
-import { AppShell } from "@/components/app-shell"
 import { SearchForm } from "@/components/search-form"
 import { FilterSection } from "@/components/filter-section"
-import { ResultsTable } from "@/components/results-table"
+import { ResultsTable, ColumnDef } from "@/components/results-table"
 import { ChatPanel } from "@/components/chat-panel"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Download, Filter, SearchIcon, Map } from "lucide-react"
+import { Download, Filter, SearchIcon, Map, Loader2, Phone, Mail, ExternalLink } from "lucide-react"
 import * as React from "react"
-import type { Business, FilterValues } from "@/components/map-leads-app"
+import { useRouter, useSearchParams } from "next/navigation"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Badge } from "@/components/ui/badge"
+import { Slider } from "@/components/ui/slider"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Business as UIBusiness } from "@/components/map-leads-app"
+import type { Business as DBBusiness } from "@/types/database"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { googleMapsService } from "@/lib/google-maps"
 
-// Function to generate random mock data
-function generateMockData(count: number): Business[] {
-  const cities = [
-    "Portland",
-    "Seattle",
-    "San Francisco",
-    "Los Angeles",
-    "New York",
-    "Chicago",
-    "Austin",
-    "Miami",
-    "Denver",
-    "Boston",
-    "Atlanta",
-    "Dallas",
-    "Phoenix",
-    "Las Vegas",
-    "Nashville",
-  ]
-  const businessTypes = [
-    "Restaurant",
-    "Cafe",
-    "Dental Office",
-    "Tech Company",
-    "Retail Store",
-    "Gym",
-    "Salon",
-    "Law Firm",
-    "Accounting Firm",
-    "Marketing Agency",
-    "Real Estate Office",
-    "Medical Clinic",
-    "Bakery",
-    "Brewery",
-    "Consulting Firm",
-  ]
-  const streetNames = [
-    "Main St",
-    "Oak Ave",
-    "Maple Rd",
-    "Broadway",
-    "Park Ave",
-    "Market St",
-    "Washington Blvd",
-    "Lincoln Ave",
-    "Highland Dr",
-    "Sunset Blvd",
-    "River Rd",
-    "Lake St",
-    "Forest Ave",
-    "Mountain View",
-    "Ocean Dr",
-  ]
-
-  const mockData: Business[] = []
-
-  for (let i = 1; i <= count; i++) {
-    const hasPhone = Math.random() > 0.2
-    const hasEmail = Math.random() > 0.3
-    const hasWebsite = Math.random() > 0.25
-    const businessType = businessTypes[Math.floor(Math.random() * businessTypes.length)]
-    const city = cities[Math.floor(Math.random() * cities.length)]
-    const streetNumber = Math.floor(Math.random() * 9000) + 1000
-    const streetName = streetNames[Math.floor(Math.random() * streetNames.length)]
-
-    // Generate varying length descriptions
-    let description = ""
-    const descriptionLength = Math.floor(Math.random() * 4) // 0-3
-
-    switch (descriptionLength) {
-      case 0: // Short description
-        description = `${businessType} serving the ${city} area.`
-        break
-      case 1: // Medium description
-        description = `${businessType} serving the ${city} area with professional services and competitive rates. Established in ${2000 + Math.floor(Math.random() * 23)}.`
-        break
-      case 2: // Long description
-        description = `${businessType} serving the ${city} area with professional services and competitive rates. Established in ${2000 + Math.floor(Math.random() * 23)}. We pride ourselves on customer satisfaction and quality service. Our team of experts is ready to assist you with all your needs.`
-        break
-      case 3: // Very long description
-        description = `${businessType} serving the ${city} area with professional services and competitive rates. Established in ${2000 + Math.floor(Math.random() * 23)}. We pride ourselves on customer satisfaction and quality service. Our team of experts is ready to assist you with all your needs. We have been voted the best ${businessType.toLowerCase()} in ${city} for the past ${Math.floor(Math.random() * 5) + 3} years. Contact us today to learn more about our services and how we can help you achieve your goals. We look forward to serving you!`
-        break
-    }
-
-    // Create business with varying data characteristics
-    mockData.push({
-      id: i.toString(),
-      name:
-        `${city} ${businessType} ${i}` +
-        (i % 20 === 0 ? " with an Exceptionally Long Business Name That Might Cause Layout Issues" : ""),
-      street:
-        `${streetNumber} ${streetName}` +
-        (i % 25 === 0 ? ", Suite " + Math.floor(Math.random() * 500) + ", Building Complex Name" : ""),
-      city: city,
-      rating: Math.round((Math.random() * 4 + 1) * 10) / 10, // Rating between 1.0 and 5.0
-      phone: hasPhone
-        ? `${Math.floor(Math.random() * 900) + 100}-${Math.floor(Math.random() * 900) + 100}-${Math.floor(Math.random() * 9000) + 1000}`
-        : null,
-      email: hasEmail
-        ? `contact${i}@${city.toLowerCase().replace(" ", "")}${businessType.toLowerCase().replace(" ", "")}.com`.toLowerCase()
-        : null,
-      website: hasWebsite
-        ? `https://www.${city.toLowerCase().replace(" ", "")}${businessType.toLowerCase().replace(" ", "")}.com`.toLowerCase()
-        : null,
-      description: description,
-    })
+// Transform database business to UI business
+function transformBusinessForUI(business: Partial<DBBusiness>): UIBusiness {
+  return {
+    id: business.id || "",
+    name: business.name || "",
+    formatted_address: business.formatted_address || "",
+    street: business.address || "",
+    address2: business.address2 || undefined,
+    city: business.city || "",
+    state: business.state || "",
+    zipCode: business.postal_code || "",
+    rating: business.rating || 0,
+    phone: business.phone || undefined,
+    email: business.email || undefined,
+    website: business.website || undefined,
+    description: business.description || "",
+    googleMapUrl: business.googleMapUrl || undefined,
   }
-
-  return mockData
 }
 
 export default function SearchPage() {
   const [showChat, setShowChat] = React.useState(false)
-  const [searchResults, setSearchResults] = React.useState<Business[]>([])
-  const [filteredResults, setFilteredResults] = React.useState<Business[]>([])
+  const [filteredResults, setFilteredResults] = React.useState<UIBusiness[]>([])
   const [showFilters, setShowFilters] = React.useState(false)
   const [activeTab, setActiveTab] = React.useState("results")
+  const [isSearching, setIsSearching] = React.useState(false)
+  const [searchError, setSearchError] = React.useState<string | null>(null)
+  const [searchResults, setSearchResults] = React.useState<Partial<DBBusiness>[] | null>(null)
+  const [nextPageToken, setNextPageToken] = React.useState<string | undefined>(undefined)
 
-  // Generate 100 mock data entries
+  // Create a reference to track if the component has been mounted
+  const componentMounted = React.useRef(false);
+
+  // Log search results for debugging
   React.useEffect(() => {
-    const mockData = generateMockData(100)
-    setSearchResults(mockData)
-    setFilteredResults(mockData)
-  }, [])
-
-  const handleSearch = (businessType: string, location: string) => {
-    // In a real app, this would fetch data from an API
-    console.log(`Searching for ${businessType} in ${location}`)
-
-    // For demo purposes, filter the existing data based on the search terms
-    let filtered = [...searchResults]
-
-    if (businessType) {
-      filtered = filtered.filter(
-        (business) =>
-          business.name.toLowerCase().includes(businessType.toLowerCase()) ||
-          business.description.toLowerCase().includes(businessType.toLowerCase()),
-      )
+    if (componentMounted.current && searchResults) {
+      console.log('Search results:', searchResults);
+    } else {
+      componentMounted.current = true;
     }
+  }, [searchResults]);
 
-    if (location) {
-      filtered = filtered.filter(
-        (business) =>
-          business.city.toLowerCase().includes(location.toLowerCase()) ||
-          business.street.toLowerCase().includes(location.toLowerCase()),
-      )
+  // Transform API results to UI format whenever searchResults changes
+  React.useEffect(() => {
+    if (searchResults) {
+      const transformedResults = searchResults.map(result => transformBusinessForUI(result));
+      setFilteredResults(transformedResults);
+    } else {
+      setFilteredResults([]);
     }
+  }, [searchResults])
 
-    setFilteredResults(filtered)
+  // Handle search form submission
+  const handleSearch = async (businessType: string, location: string) => {
     setActiveTab("results")
+    setIsSearching(true)
+    setSearchError(null)
+    
+    try {
+      console.log(`Searching for ${businessType} in ${location}...`);
+      
+      const response = await fetch(`/api/maps/search`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query: businessType,
+          location: location,
+          radius: 5000, // Default 5km radius
+        }),
+        cache: 'no-store',
+        next: { revalidate: 0 } // Disable caching
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        const errorMessage = data.error || `Request failed with status: ${response.status}`;
+        console.error('Search API error:', errorMessage, data);
+        throw new Error(errorMessage);
+      }
+      
+      if (!data.results || !Array.isArray(data.results)) {
+        console.error('Invalid search results format:', data);
+        throw new Error('Invalid response format from search API');
+      }
+      
+      console.log(`Found ${data.results.length} results`);
+      setSearchResults(data.results);
+      setNextPageToken(data.nextPageToken);
+    } catch (error) {
+      console.error('Search error:', error);
+      // Provide more detailed error information
+      let errorMessage = 'An unknown error occurred';
+      
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (error && typeof error === 'object') {
+        errorMessage = JSON.stringify(error);
+      } else if (error !== null && error !== undefined) {
+        errorMessage = String(error);
+      }
+      
+      setSearchError(errorMessage);
+      setSearchResults(null);
+    } finally {
+      setIsSearching(false);
+    }
   }
 
-  const handleFilterChange = (filters: FilterValues) => {
-    // Apply filters to search results
-    let filtered = [...searchResults]
+  // Handle filter changes
+  const handleFilterChange = (filters: any) => {
+    if (!searchResults) return
 
-    if (filters.name) {
-      filtered = filtered.filter((business) => business.name.toLowerCase().includes(filters.name.toLowerCase()))
-    }
+    // Apply filters to the original search results
+    const filtered = searchResults
+      .map(transformBusinessForUI)
+      .filter(business => {
+        // Filter by rating if specified
+        if (filters.ratingRange && business.rating < filters.ratingRange[0]) {
+          return false
+        }
 
-    if (filters.street) {
-      filtered = filtered.filter((business) => business.street.toLowerCase().includes(filters.street.toLowerCase()))
-    }
+        // Filter by having a website if specified
+        if (filters.hasWebsite && !business.website) {
+          return false
+        }
 
-    if (filters.city) {
-      filtered = filtered.filter((business) => business.city.toLowerCase().includes(filters.city.toLowerCase()))
-    }
+        // Filter by having a phone if specified
+        if (filters.hasPhone && !business.phone) {
+          return false
+        }
+        
+        // Filter by having an email if specified
+        if (filters.hasEmail && !business.email) {
+          return false
+        }
 
-    if (filters.description) {
-      filtered = filtered.filter((business) =>
-        business.description.toLowerCase().includes(filters.description.toLowerCase()),
-      )
-    }
+        // Filter by name if specified
+        if (filters.name && !business.name.toLowerCase().includes(filters.name.toLowerCase())) {
+          return false
+        }
 
-    if (filters.ratingRange) {
-      filtered = filtered.filter(
-        (business) => business.rating >= filters.ratingRange[0] && business.rating <= filters.ratingRange[1],
-      )
-    }
+        // Filter by street if specified
+        if (filters.street && business.street && !business.street.toLowerCase().includes(filters.street.toLowerCase())) {
+          return false
+        }
 
-    if (filters.hasPhone) {
-      filtered = filtered.filter((business) => business.phone !== null)
-    }
+        // Filter by city if specified
+        if (filters.city && business.city && !business.city.toLowerCase().includes(filters.city.toLowerCase())) {
+          return false
+        }
 
-    if (filters.hasEmail) {
-      filtered = filtered.filter((business) => business.email !== null)
-    }
+        // Filter by description/category if specified
+        if (filters.description && business.description && 
+            !business.description.toLowerCase().includes(filters.description.toLowerCase())) {
+          return false
+        }
 
-    if (filters.hasWebsite) {
-      filtered = filtered.filter((business) => business.website !== null)
-    }
+        return true
+      })
 
     setFilteredResults(filtered)
   }
 
-  const downloadCSV = () => {
-    // Create CSV content
-    const headers = ["Business Name", "Street", "City", "Rating", "Phone", "Email", "Website", "Description"]
-    const rows = filteredResults.map((business) => [
-      business.name,
-      business.street,
-      business.city,
-      business.rating.toString(),
-      business.phone || "",
-      business.email || "",
-      business.website || "",
-      business.description,
-    ])
+  // Handle loading more results
+  const handleLoadMore = async () => {
+    if (!nextPageToken) return;
+    
+    setIsSearching(true);
+    
+    try {
+      const response = await fetch(`/api/maps/search`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          pageToken: nextPageToken,
+        }),
+        cache: 'no-store',
+        next: { revalidate: 0 } // Disable caching
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to load more results');
+      }
+      
+      // Append new results to existing ones
+      setSearchResults(prev => prev ? [...prev, ...data.results] : data.results);
+      setNextPageToken(data.nextPageToken);
+    } catch (error) {
+      console.error('Load more error:', error);
+      setSearchError(error instanceof Error ? error.message : 'An unknown error occurred');
+    } finally {
+      setIsSearching(false);
+    }
+  }
 
-    const csvContent = [headers.join(","), ...rows.map((row) => row.join(","))].join("\n")
+  // Handle CSV download
+  const downloadCSV = () => {
+    if (filteredResults.length === 0) return
+
+    // Create CSV content
+    const headers = ["Name", "Address", "City", "Rating", "Phone", "Email", "Website", "Category"]
+    const csvContent = [
+      headers.join(","),
+      ...filteredResults.map(business => [
+        `"${business.name}"`,
+        `"${business.formatted_address}"`,
+        `"${business.city || ""}"`,
+        business.rating || "",
+        `"${business.phone || ""}"`,
+        `"${business.email || ""}"`,
+        `"${business.website || ""}"`,
+        `"${business.description || ""}"`
+      ].join(","))
+    ].join("\n")
 
     // Create download link
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
     const url = URL.createObjectURL(blob)
     const link = document.createElement("a")
     link.setAttribute("href", url)
-    link.setAttribute("download", "mapleads_results.csv")
-    link.style.visibility = "hidden"
+    link.setAttribute("download", "business_results.csv")
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
   }
 
+  const columns: ColumnDef<UIBusiness>[] = [
+    {
+      accessorKey: "name",
+      header: "Name",
+      cell: ({ row }: { row: { original: UIBusiness; getValue: (key: string) => any } }) => {
+        const name = row.getValue("name") as string
+        return <div className="font-medium whitespace-normal min-w-[150px] max-w-[300px]">{name}</div>
+      },
+    },
+    {
+      accessorKey: "formatted_address",
+      header: "Address",
+      cell: ({ row }: { row: { original: UIBusiness; getValue: (key: string) => any } }) => {
+        const address = row.getValue("formatted_address") as string
+        return <div className="whitespace-normal min-w-[200px] max-w-[350px]">{address}</div>
+      },
+    },
+    {
+      accessorKey: "city",
+      header: "City",
+      cell: ({ row }: { row: { original: UIBusiness; getValue: (key: string) => any } }) => {
+        const city = row.getValue("city") as string
+        return <div className="whitespace-normal min-w-[100px] max-w-[150px]">{city}</div>
+      },
+    },
+    {
+      accessorKey: "state",
+      header: "State",
+      cell: ({ row }: { row: { original: UIBusiness; getValue: (key: string) => any } }) => {
+        const state = row.original.state
+        return state ? <div className="whitespace-normal min-w-[60px] max-w-[100px]">{state}</div> : null
+      },
+    },
+    {
+      accessorKey: "zipCode",
+      header: "Zip Code",
+      cell: ({ row }: { row: { original: UIBusiness; getValue: (key: string) => any } }) => {
+        const zipCode = row.original.zipCode
+        return zipCode ? <div className="whitespace-normal min-w-[80px] max-w-[120px]">{zipCode}</div> : null
+      },
+    },
+    {
+      accessorKey: "rating",
+      header: "Rating",
+      cell: ({ row }: { row: { original: UIBusiness; getValue: (key: string) => any } }) => {
+        const rating = row.getValue("rating") as number
+        return (
+          <div className="min-w-[80px] max-w-[100px]">
+            {rating ? (
+              <Badge variant="outline">{rating.toFixed(1)} ★</Badge>
+            ) : (
+              <Badge variant="outline" className="text-muted-foreground">No rating</Badge>
+            )}
+          </div>
+        )
+      },
+    },
+    {
+      accessorKey: "phone",
+      header: "Phone",
+      cell: ({ row }: { row: { original: UIBusiness; getValue: (key: string) => any } }) => {
+        const phone = row.original.phone
+        return phone ? (
+          <a
+            href={`tel:${phone}`}
+            className="flex items-center text-sm hover:underline whitespace-normal min-w-[120px] max-w-[180px]"
+          >
+            <Phone className="h-3 w-3 mr-1 flex-shrink-0" />
+            {phone}
+          </a>
+        ) : (
+          <span className="text-muted-foreground text-sm min-w-[120px] max-w-[180px]">Not available</span>
+        )
+      },
+    },
+    {
+      accessorKey: "email",
+      header: "Email",
+      cell: ({ row }: { row: { original: UIBusiness; getValue: (key: string) => any } }) => {
+        const email = row.original.email
+        return email ? (
+          <a
+            href={`mailto:${email}`}
+            className="flex items-center text-sm hover:underline whitespace-normal min-w-[150px] max-w-[200px]"
+          >
+            <Mail className="h-3 w-3 mr-1 flex-shrink-0" />
+            {email}
+          </a>
+        ) : (
+          <span className="text-muted-foreground text-sm min-w-[150px] max-w-[200px]">Not available</span>
+        )
+      },
+    },
+    {
+      accessorKey: "website",
+      header: "Website",
+      cell: ({ row }: { row: { original: UIBusiness; getValue: (key: string) => any } }) => {
+        const website = row.original.website
+        return website ? (
+          <a
+            href={website}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center text-sm hover:underline whitespace-normal min-w-[150px] max-w-[200px]"
+          >
+            <ExternalLink className="h-3 w-3 mr-1 flex-shrink-0" />
+            {website.replace(/^https?:\/\//, "")}
+          </a>
+        ) : (
+          <span className="text-muted-foreground text-sm min-w-[150px] max-w-[200px]">Not available</span>
+        )
+      },
+    },
+    {
+      accessorKey: "description",
+      header: "Description",
+      cell: ({ row }: { row: { original: UIBusiness; getValue: (key: string) => any } }) => {
+        const description = row.original.description
+        return description ? (
+          <div className="whitespace-normal min-w-[200px] max-w-[300px] line-clamp-2" title={description}>
+            {description}
+          </div>
+        ) : (
+          <span className="text-muted-foreground text-sm min-w-[200px] max-w-[300px]">No description</span>
+        )
+      },
+    },
+    {
+      accessorKey: "googleMapUrl",
+      header: "Google Map",
+      cell: ({ row }: { row: { original: UIBusiness; getValue: (key: string) => any } }) => {
+        const googleMapUrl = row.original.googleMapUrl
+        return googleMapUrl ? (
+          <a
+            href={googleMapUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center text-sm hover:underline min-w-[100px] max-w-[120px]"
+          >
+            <Map className="h-4 w-4 mr-1 flex-shrink-0" />
+            View
+          </a>
+        ) : (
+          <span className="text-muted-foreground text-sm min-w-[100px] max-w-[120px]">Not available</span>
+        )
+      },
+    },
+  ]
+
   return (
-    <AppShell>
+    <>
       <div className="space-y-6 w-full">
         {/* Search Section */}
         <Card>
@@ -261,9 +428,17 @@ export default function SearchPage() {
               <div>
                 <CardTitle>Results</CardTitle>
                 <CardDescription>
-                  {filteredResults.length === 0
-                    ? "No results found. Try adjusting your search criteria."
-                    : `Showing ${filteredResults.length} businesses matching your criteria`}
+                  {isSearching ? (
+                    "Searching..."
+                  ) : searchError ? (
+                    "Error searching. Please try again."
+                  ) : !searchResults ? (
+                    "Enter search criteria above to find businesses."
+                  ) : filteredResults.length === 0 ? (
+                    "No results found. Try adjusting your search criteria."
+                  ) : (
+                    `Showing ${filteredResults.length} businesses matching your criteria`
+                  )}
                 </CardDescription>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -271,6 +446,7 @@ export default function SearchPage() {
                   variant="outline"
                   onClick={() => setShowFilters(!showFilters)}
                   className="flex items-center gap-2"
+                  disabled={!searchResults || searchResults.length === 0}
                 >
                   <Filter className="h-4 w-4" />
                   {showFilters ? "Hide Filters" : "Show Filters"}
@@ -291,6 +467,12 @@ export default function SearchPage() {
             </div>
           </CardHeader>
           <CardContent className="p-0">
+            {searchError && (
+              <Alert variant="destructive" className="mx-6 mt-4">
+                <AlertDescription>{searchError}</AlertDescription>
+              </Alert>
+            )}
+            
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <div className="px-6 pt-2">
                 <TabsList className="grid w-full grid-cols-2">
@@ -308,7 +490,34 @@ export default function SearchPage() {
 
                 <TabsContent value="results" className="mt-0 w-full">
                   <div className="content-container">
-                    <ResultsTable data={filteredResults} />
+                    {isSearching ? (
+                      <div className="flex items-center justify-center h-[200px]">
+                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                      </div>
+                    ) : (
+                      <>
+                        <ResultsTable columns={columns} data={filteredResults} />
+                        
+                        {nextPageToken && (
+                          <div className="mt-4 flex justify-center">
+                            <Button 
+                              onClick={handleLoadMore} 
+                              disabled={isSearching}
+                              variant="outline"
+                            >
+                              {isSearching ? (
+                                <>
+                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                  Loading...
+                                </>
+                              ) : (
+                                "Load More Results"
+                              )}
+                            </Button>
+                          </div>
+                        )}
+                      </>
+                    )}
                   </div>
                 </TabsContent>
 
@@ -337,7 +546,6 @@ export default function SearchPage() {
           <ChatPanel onClose={() => setShowChat(false)} />
         </div>
       )}
-    </AppShell>
+    </>
   )
 }
-
