@@ -212,32 +212,34 @@ export function ResultsTable({ data, columns, currentPage: externalCurrentPage, 
         </div>
       </div>
 
-      <div className="rounded-md border overflow-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              {columns?.map((column, index) => (
-                <TableHead key={`header-${index}`} className="whitespace-nowrap">
-                  {column.header}
-                </TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {currentData.map((row, rowIndex) => (
-              <TableRow key={`row-${rowIndex}`}>
-                {columns?.map((column, columnIndex) => (
-                  <TableCell 
-                    key={`cell-${rowIndex}-${columnIndex}`} 
-                    className="py-2"
-                  >
-                    {column.cell ? column.cell({ row: { original: row, getValue: (key) => row[key as keyof Business] } }) : row[column.accessorKey as keyof Business]}
-                  </TableCell>
+      <div className="rounded-md border">
+        <div className="overflow-visible">
+          <Table>
+            <TableHeader className="overflow-visible">
+              <TableRow className="overflow-visible">
+                {columns?.map((column, index) => (
+                  <TableHead key={`header-${index}`} className="whitespace-nowrap overflow-visible">
+                    {column.header}
+                  </TableHead>
                 ))}
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {currentData.map((row, rowIndex) => (
+                <TableRow key={`row-${rowIndex}`}>
+                  {columns?.map((column, columnIndex) => (
+                    <TableCell 
+                      key={`cell-${rowIndex}-${columnIndex}`} 
+                      className="py-2"
+                    >
+                      {column.cell ? column.cell({ row: { original: row, getValue: (key) => row[key as keyof Business] } }) : row[column.accessorKey as keyof Business]}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </div>
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-4">

@@ -19,6 +19,7 @@ import { Business as UIBusiness } from "@/components/map-leads-app"
 import type { Business as DBBusiness } from "@/types/database"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { googleMapsService } from "@/lib/google-maps"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 // Transform database business to UI business
 function transformBusinessForUI(business: Partial<DBBusiness>): UIBusiness {
@@ -305,32 +306,38 @@ export default function SearchPage() {
     {
       accessorKey: "select",
       header: (
-        <div className="relative flex items-center justify-center group">
-          <Checkbox 
-            checked={selectAllVisible}
-            onCheckedChange={(checked) => {
-              const currentPageIds = filteredResults
-                .slice((currentPage - 1) * pageSize, currentPage * pageSize)
-                .map(row => row.id);
-              
-              // Create a new selection state
-              const newSelected = { ...selectedRecords };
-              
-              // Update selection for current page items
-              currentPageIds.forEach(id => {
-                newSelected[id] = !!checked;
-              });
-              
-              setSelectedRecords(newSelected);
-              setSelectAllVisible(!!checked);
-            }}
-            aria-label="Select all visible records"
-            className="cursor-pointer"
-          />
-          <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
-            Select all visible records
-          </span>
-        </div>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex items-center justify-center">
+                <Checkbox 
+                  checked={selectAllVisible}
+                  onCheckedChange={(checked) => {
+                    const currentPageIds = filteredResults
+                      .slice((currentPage - 1) * pageSize, currentPage * pageSize)
+                      .map(row => row.id);
+                    
+                    // Create a new selection state
+                    const newSelected = { ...selectedRecords };
+                    
+                    // Update selection for current page items
+                    currentPageIds.forEach(id => {
+                      newSelected[id] = !!checked;
+                    });
+                    
+                    setSelectedRecords(newSelected);
+                    setSelectAllVisible(!!checked);
+                  }}
+                  aria-label="Select all visible records"
+                  className="cursor-pointer"
+                />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="top">
+              <p>Select all visible records</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       ),
       cell: ({ row }) => {
         const id = row.original.id;
@@ -527,7 +534,7 @@ export default function SearchPage() {
         </Card>
 
         {/* Results Section with Tabs */}
-        <Card className="overflow-hidden">
+        <Card className="relative">
           <CardHeader className="py-2">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
@@ -556,40 +563,53 @@ export default function SearchPage() {
                   <Filter className="h-4 w-4" />
                   {showFilters ? "Hide Filters" : "Show Filters"}
                 </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    // Select all records that match the current filters
-                    const newSelected = { ...selectedRecords };
-                    filteredResults.forEach(business => {
-                      newSelected[business.id] = true;
-                    });
-                    setSelectedRecords(newSelected);
-                    setSelectAllVisible(true);
-                  }}
-                  className="flex items-center gap-2 relative group"
-                  disabled={filteredResults.length === 0}
-                  title="Select all records that match your current filters"
-                >
-                  <CheckSquare className="h-4 w-4 mr-1" />
-                  Select All Matching Records
-                  <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
-                    Selects all records that match your current filters
-                  </span>
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={downloadCSV}
-                  className="flex items-center gap-2 relative group"
-                  disabled={Object.keys(selectedRecords).length === 0 || !Object.values(selectedRecords).some(v => v)}
-                  title="Export selected records to CSV file"
-                >
-                  <Download className="h-4 w-4" />
-                  Export {Object.values(selectedRecords).filter(Boolean).length} Selected
-                  <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
-                    Exports only selected records
-                  </span>
-                </Button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          // Select all records that match the current filters
+                          const newSelected = { ...selectedRecords };
+                          
+                          // Update selection for all records
+                          filteredResults.forEach(business => {
+                            newSelected[business.id] = true;
+                          });
+                          
+                          setSelectedRecords(newSelected);
+                          setSelectAllVisible(true);
+                        }}
+                        className="flex items-center gap-2"
+                        disabled={filteredResults.length === 0}
+                      >
+                        <CheckSquare className="h-4 w-4 mr-1" />
+                        Select All Matching Records
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top">
+                      <p>Selects all records that match your current filters</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        onClick={downloadCSV}
+                        className="flex items-center gap-2"
+                        disabled={Object.keys(selectedRecords).length === 0 || !Object.values(selectedRecords).some(v => v)}
+                      >
+                        <Download className="h-4 w-4" />
+                        Export {Object.values(selectedRecords).filter(Boolean).length} Selected
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top">
+                      <p>Exports only selected records</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
                 <Button onClick={() => setShowChat(!showChat)} variant="secondary">
                   {showChat ? "Hide Chat" : "AI Assistant"}
                 </Button>
