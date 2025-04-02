@@ -7,7 +7,7 @@ import { ChatPanel } from "@/components/chat-panel"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Download, Filter, SearchIcon, Map, Loader2, Phone, Mail, ExternalLink } from "lucide-react"
+import { Download, Filter, SearchIcon, Map, Loader2, Phone, Mail, ExternalLink, Globe } from "lucide-react"
 import * as React from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Input } from "@/components/ui/input"
@@ -280,27 +280,27 @@ export default function SearchPage() {
     },
     {
       accessorKey: "state",
-      header: "State",
+      header: <div className="text-center w-full">State</div>,
       cell: ({ row }: { row: { original: UIBusiness; getValue: (key: string) => any } }) => {
         const state = row.original.state
-        return state ? <div className="whitespace-normal min-w-[60px] max-w-[100px]">{state}</div> : null
+        return state ? <div className="whitespace-normal min-w-[60px] max-w-[100px] text-center">{state}</div> : null
       },
     },
     {
       accessorKey: "zipCode",
-      header: "Zip Code",
+      header: <div className="text-center w-full">Zip Code</div>,
       cell: ({ row }: { row: { original: UIBusiness; getValue: (key: string) => any } }) => {
         const zipCode = row.original.zipCode
-        return zipCode ? <div className="whitespace-normal min-w-[80px] max-w-[120px]">{zipCode}</div> : null
+        return zipCode ? <div className="whitespace-normal min-w-[80px] max-w-[120px] text-center">{zipCode}</div> : null
       },
     },
     {
       accessorKey: "rating",
-      header: "Rating",
+      header: <div className="text-center w-full">Rating</div>,
       cell: ({ row }: { row: { original: UIBusiness; getValue: (key: string) => any } }) => {
         const rating = row.getValue("rating") as number
         return (
-          <div className="min-w-[80px] max-w-[100px]">
+          <div className="min-w-[80px] max-w-[100px] text-center">
             {rating ? (
               <Badge variant="outline">{rating.toFixed(1)} ★</Badge>
             ) : (
@@ -348,7 +348,7 @@ export default function SearchPage() {
     },
     {
       accessorKey: "website",
-      header: "Website",
+      header: <div className="text-center w-full">Website</div>,
       cell: ({ row }: { row: { original: UIBusiness; getValue: (key: string) => any } }) => {
         const website = row.original.website
         return website ? (
@@ -356,13 +356,13 @@ export default function SearchPage() {
             href={website}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center text-sm hover:underline whitespace-normal min-w-[150px] max-w-[200px]"
+            className="flex items-center justify-center text-sm hover:text-primary min-w-[100px] max-w-[120px]"
           >
-            <ExternalLink className="h-3 w-3 mr-1 flex-shrink-0" />
-            {website.replace(/^https?:\/\//, "")}
+            <Globe className="h-4 w-4 mr-1 flex-shrink-0" />
+            View
           </a>
         ) : (
-          <span className="text-muted-foreground text-sm min-w-[150px] max-w-[200px]">Not available</span>
+          <span className="text-muted-foreground text-sm min-w-[100px] max-w-[120px] text-center">Not available</span>
         )
       },
     },
@@ -382,7 +382,7 @@ export default function SearchPage() {
     },
     {
       accessorKey: "googleMapUrl",
-      header: "Google Map",
+      header: <div className="text-center w-full">Google Map</div>,
       cell: ({ row }: { row: { original: UIBusiness; getValue: (key: string) => any } }) => {
         const googleMapUrl = row.original.googleMapUrl
         return googleMapUrl ? (
@@ -390,13 +390,13 @@ export default function SearchPage() {
             href={googleMapUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center text-sm hover:underline min-w-[100px] max-w-[120px]"
+            className="flex items-center justify-center text-sm hover:text-primary min-w-[100px] max-w-[120px]"
           >
             <Map className="h-4 w-4 mr-1 flex-shrink-0" />
             View
           </a>
         ) : (
-          <span className="text-muted-foreground text-sm min-w-[100px] max-w-[120px]">Not available</span>
+          <span className="text-muted-foreground text-sm min-w-[100px] max-w-[120px] text-center">Not available</span>
         )
       },
     },
