@@ -65,6 +65,13 @@ export interface GoogleMapsSearchResponse {
   error_message?: string;
 }
 
+export interface GoogleMapsTextSearchResponse {
+  results: GoogleMapsPlaceResult[];
+  next_page_token?: string;
+  status: string;
+  error_message?: string;
+}
+
 export interface GoogleMapsPlaceDetailsResponse {
   result: GoogleMapsPlaceResult;
   status: string;
@@ -187,6 +194,53 @@ export const googleMapsService = {
       };
     } catch (error) {
       console.error('Error in Google Maps API request:', error);
+      throw error;
+    }
+  },
+  
+  /**
+   * Get the next page of results using a page token
+   */
+  getNextPageResults: async (pageToken: string): Promise<{ results: Partial<Business>[]; nextPageToken?: string }> => {
+    if (!pageToken) {
+      throw new Error('Page token is required');
+    }
+
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+    if (!apiKey) {
+      throw new Error('Google Maps API key is not configured');
+    }
+
+    try {
+      // Construct the URL with the page token
+      const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?pagetoken=${pageToken}&key=${apiKey}`;
+      
+      console.log(`Fetching next page results with token: ${pageToken}`);
+      
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        console.error(`Google Maps API request failed with status: ${response.status} ${response.statusText}`);
+        throw new Error(`Google Maps API request failed: ${response.statusText}`);
+      }
+      
+      const data = await response.json() as GoogleMapsTextSearchResponse;
+      
+      // Handle API errors
+      if (data.status !== 'OK' && data.status !== 'ZERO_RESULTS') {
+        console.error(`Google Maps API returned error status: ${data.status}`, data.error_message || 'No error message provided');
+        throw new GoogleMapsError(`Google Maps API error: ${data.status}${data.error_message ? ` - ${data.error_message}` : ''}`, data.status);
+      }
+      
+      // Transform the results to our Business type
+      const businesses = data.results.map(place => transformPlaceToBusinessPartial(place));
+      
+      return {
+        results: businesses,
+        nextPageToken: data.next_page_token
+      };
+    } catch (error) {
+      console.error('Error fetching next page of results:', error);
       throw error;
     }
   },

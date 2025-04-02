@@ -25,6 +25,10 @@ export interface ColumnDef<T> {
 interface ResultsTableProps {
   data: Business[]
   columns?: ColumnDef<Business>[]
+  currentPage?: number
+  setCurrentPage?: React.Dispatch<React.SetStateAction<number>>
+  pageSize?: number
+  setPageSize?: React.Dispatch<React.SetStateAction<number>>
 }
 
 // Create a reusable pagination component to avoid duplicate code and key issues
@@ -108,10 +112,16 @@ function PaginationControls({
   );
 }
 
-export function ResultsTable({ data, columns }: ResultsTableProps) {
-  const [currentPage, setCurrentPage] = useState(1)
-  const [pageSize, setPageSize] = useState(10)
+export function ResultsTable({ data, columns, currentPage: externalCurrentPage, setCurrentPage: externalSetCurrentPage, pageSize: externalPageSize, setPageSize: externalSetPageSize }: ResultsTableProps) {
+  const [internalCurrentPage, setInternalCurrentPage] = useState(1)
+  const [internalPageSize, setInternalPageSize] = useState(10)
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null)
+
+  // Use external state if provided, otherwise use internal state
+  const currentPage = externalCurrentPage ?? internalCurrentPage
+  const setCurrentPage = externalSetCurrentPage ?? setInternalCurrentPage
+  const pageSize = externalPageSize ?? internalPageSize
+  const setPageSize = externalSetPageSize ?? setInternalPageSize
 
   const totalPages = Math.ceil(data.length / pageSize)
   const startIndex = (currentPage - 1) * pageSize
@@ -151,9 +161,9 @@ export function ResultsTable({ data, columns }: ResultsTableProps) {
   const PageSizeSelector = ({ id }: { id: string }) => (
     <div className="flex items-center space-x-2">
       <p className="text-sm text-muted-foreground">Rows per page</p>
-      <Select value={pageSize.toString()} onValueChange={handlePageSizeChange}>
+      <Select value={(pageSize).toString()} onValueChange={handlePageSizeChange}>
         <SelectTrigger className="h-8 w-[70px]" id={`page-size-trigger-${id}`}>
-          <SelectValue placeholder={pageSize.toString()} />
+          <SelectValue placeholder={(pageSize).toString()} />
         </SelectTrigger>
         <SelectContent id={`page-size-content-${id}`}>
           <SelectItem value="5" key={`${id}-size-5`}>5</SelectItem>

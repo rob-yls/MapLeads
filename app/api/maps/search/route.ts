@@ -37,89 +37,120 @@ export async function POST(request: NextRequest) {
     
     // Parse the request body
     const body = await request.json();
-    const { query, location, radius = 5000, category } = body;
+    const { query, location, radius = 5000, category, pageToken } = body;
     
-    // Validate required fields
-    if (!query || !location) {
+    // Validate required fields - only validate query and location if no pageToken is provided
+    if (!pageToken && (!query || !location)) {
       return NextResponse.json(
-        { error: 'Query and location are required' },
+        { error: 'Query and location are required for initial search' },
         { status: 400 }
       );
     }
     
     // Perform the search using Google Maps API
-    console.log(`[API] Searching for businesses with query=${query}, location=${location}, radius=${radius}`);
-    
-    const searchResults = await googleMapsService.searchBusinesses(
-      query,
-      location,
-      radius,
-      category
-    );
-    
-    // Manually fetch details for each place to ensure we have complete contact information
-    if (searchResults.results.length > 0) {
-      const enhancedResults = await Promise.all(
-        searchResults.results.slice(0, 10).map(async (business) => {
-          try {
-            // Get full details for each business to ensure phone and website data is present
-            const details = await googleMapsService.getBusinessDetails(business.google_place_id || business.id || '');
-            return details;
-          } catch (error) {
-            console.error(`[API] Failed to get details for ${business.name}:`, error);
-            return business;
-          }
-        })
+    if (pageToken) {
+      console.log(`[API] Loading more results with pageToken=${pageToken}`);
+      
+      const searchResults = await googleMapsService.getNextPageResults(pageToken);
+      
+      // Manually fetch details for each place to ensure we have complete contact information
+      if (searchResults.results.length > 0) {
+        const enhancedResults = await Promise.all(
+          searchResults.results.map(async (business) => {
+            try {
+              // Get full details for each business to ensure phone and website data is present
+              const details = await googleMapsService.getBusinessDetails(business.google_place_id || business.id || '');
+              return details;
+            } catch (error) {
+              console.error(`[API] Failed to get details for ${business.name}:`, error);
+              return business;
+            }
+          })
+        );
+        
+        // Replace all results with enhanced results
+        searchResults.results = enhancedResults;
+      }
+      
+      // Return the search results
+      return NextResponse.json({
+        results: searchResults.results,
+        nextPageToken: searchResults.nextPageToken
+      });
+    } else {
+      console.log(`[API] Searching for businesses with query=${query}, location=${location}, radius=${radius}`);
+      
+      const searchResults = await googleMapsService.searchBusinesses(
+        query,
+        location,
+        radius,
+        category
       );
       
-      // Replace the first 10 results with enhanced results
-      searchResults.results.splice(0, enhancedResults.length, ...enhancedResults);
-    }
-    
-    // In development mode with bypass, we can optionally skip database operations
-    const skipDatabaseOps = isDevelopment && BYPASS_AUTH_FOR_DEVELOPMENT && !session;
-    
-    // Save the search to the database (only if we have a valid user ID and not skipping DB ops)
-    if (userId && !skipDatabaseOps) {
-      try {
-        const search = await searchService.createSearch({
-          user_id: userId,
-          query,
-          location,
-          radius,
-          category: category || null,
-          filters: body.filters || {}
-        });
+      // Manually fetch details for each place to ensure we have complete contact information
+      if (searchResults.results.length > 0) {
+        const enhancedResults = await Promise.all(
+          searchResults.results.map(async (business) => {
+            try {
+              // Get full details for each business to ensure phone and website data is present
+              const details = await googleMapsService.getBusinessDetails(business.google_place_id || business.id || '');
+              return details;
+            } catch (error) {
+              console.error(`[API] Failed to get details for ${business.name}:`, error);
+              return business;
+            }
+          })
+        );
         
-        // Save each business and create search results
-        const savedBusinesses = [];
-        for (const business of searchResults.results) {
-          const savedBusiness = await businessService.upsertBusiness(business as any);
-          savedBusinesses.push(savedBusiness);
-        }
-        
-        // Create search results linking the search to the businesses
-        await searchResultService.createSearchResults(search.id, savedBusinesses);
-        
-        // Update the result count
-        await searchService.updateResultCount(search.id, savedBusinesses.length);
-      } catch (dbError) {
-        // Log database errors but don't fail the request
-        console.error('Database operation failed:', dbError);
-        // In development mode, we can continue without database operations
-        if (!isDevelopment) {
-          throw dbError; // In production, we should propagate the error
-        }
+        // Replace all results with enhanced results
+        searchResults.results = enhancedResults;
       }
-    } else if (skipDatabaseOps) {
-      console.log('Development mode: Skipping database operations');
+      
+      // In development mode with bypass, we can optionally skip database operations
+      const skipDatabaseOps = isDevelopment && BYPASS_AUTH_FOR_DEVELOPMENT && !session;
+      
+      // Save the search to the database (only if we have a valid user ID and not skipping DB ops)
+      if (userId && !skipDatabaseOps) {
+        try {
+          const search = await searchService.createSearch({
+            user_id: userId,
+            query,
+            location,
+            radius,
+            category: category || null,
+            filters: body.filters || {}
+          });
+          
+          // Save each business and create search results
+          const savedBusinesses = [];
+          for (const business of searchResults.results) {
+            const savedBusiness = await businessService.upsertBusiness(business as any);
+            savedBusinesses.push(savedBusiness);
+          }
+          
+          // Create search results linking the search to the businesses
+          await searchResultService.createSearchResults(search.id, savedBusinesses);
+          
+          // Update the result count
+          await searchService.updateResultCount(search.id, savedBusinesses.length);
+        } catch (dbError) {
+          // Log database errors but don't fail the request
+          console.error('Database operation failed:', dbError);
+          // In development mode, we can continue without database operations
+          if (!isDevelopment) {
+            throw dbError; // In production, we should propagate the error
+          }
+        }
+      } else if (skipDatabaseOps) {
+        console.log('Development mode: Skipping database operations');
+      }
+      
+      // Return the search results
+      return NextResponse.json({
+        results: searchResults.results,
+        nextPageToken: searchResults.nextPageToken
+      });
     }
-    
-    // Return the search results
-    return NextResponse.json({
-      results: searchResults.results,
-      nextPageToken: searchResults.nextPageToken
-    });
   } catch (error: any) {
     console.error('Error in maps search API:', error);
     
@@ -189,7 +220,7 @@ export async function GET(request: NextRequest) {
     // Manually fetch details for each place to ensure we have complete contact information
     if (searchResults.results.length > 0) {
       const enhancedResults = await Promise.all(
-        searchResults.results.slice(0, 10).map(async (business) => {
+        searchResults.results.map(async (business) => {
           try {
             // Get full details for each business to ensure phone and website data is present
             const details = await googleMapsService.getBusinessDetails(business.google_place_id || business.id || '');
@@ -201,8 +232,8 @@ export async function GET(request: NextRequest) {
         })
       );
       
-      // Replace the first 10 results with enhanced results
-      searchResults.results.splice(0, enhancedResults.length, ...enhancedResults);
+      // Replace all results with enhanced results
+      searchResults.results = enhancedResults;
     }
     
     // Return the search results

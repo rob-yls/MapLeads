@@ -7,7 +7,7 @@ import { ChatPanel } from "@/components/chat-panel"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Download, Filter, SearchIcon, Map, Loader2, Phone, Mail, ExternalLink, Globe } from "lucide-react"
+import { Download, Filter, SearchIcon, Map, Loader2, Phone, Mail, ExternalLink, Globe, CheckSquare } from "lucide-react"
 import * as React from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Input } from "@/components/ui/input"
@@ -32,6 +32,7 @@ function transformBusinessForUI(business: Partial<DBBusiness>): UIBusiness {
     state: business.state || "",
     zipCode: business.postal_code || "",
     rating: business.rating || 0,
+    review_count: business.review_count || 0,
     phone: business.phone || undefined,
     email: business.email || undefined,
     website: business.website || undefined,
@@ -41,6 +42,10 @@ function transformBusinessForUI(business: Partial<DBBusiness>): UIBusiness {
 }
 
 export default function SearchPage() {
+  const [searchTerm, setSearchTerm] = React.useState("")
+  const [businessType, setBusinessType] = React.useState("")
+  const [location, setLocation] = React.useState("")
+  const [radius, setRadius] = React.useState(5000)
   const [showChat, setShowChat] = React.useState(false)
   const [filteredResults, setFilteredResults] = React.useState<UIBusiness[]>([])
   const [showFilters, setShowFilters] = React.useState(false)
@@ -49,6 +54,10 @@ export default function SearchPage() {
   const [searchError, setSearchError] = React.useState<string | null>(null)
   const [searchResults, setSearchResults] = React.useState<Partial<DBBusiness>[] | null>(null)
   const [nextPageToken, setNextPageToken] = React.useState<string | undefined>(undefined)
+  const [selectedRecords, setSelectedRecords] = React.useState<Record<string, boolean>>({})
+  const [selectAllVisible, setSelectAllVisible] = React.useState(false)
+  const [currentPage, setCurrentPage] = React.useState(1)
+  const [pageSize, setPageSize] = React.useState(10)
 
   // Create a reference to track if the component has been mounted
   const componentMounted = React.useRef(false);
@@ -202,7 +211,7 @@ export default function SearchPage() {
           pageToken: nextPageToken,
         }),
         cache: 'no-store',
-        next: { revalidate: 0 } // Disable caching
+        next: { revalidate: 0 }
       });
       
       const data = await response.json();
@@ -223,22 +232,58 @@ export default function SearchPage() {
   }
 
   // Handle CSV download
-  const downloadCSV = () => {
-    if (filteredResults.length === 0) return
+  const downloadCSV = async () => {
+    try {
+      setIsSearching(true);
+      
+      // Get all business data including details from API
+      let allBusinessData: UIBusiness[] = [];
+      
+      // First, add the currently filtered results
+      allBusinessData = [...filteredResults];
+      
+      // Filter to only include selected records
+      const selectedBusinesses = allBusinessData.filter(business => selectedRecords[business.id]);
+      
+      if (selectedBusinesses.length === 0) {
+        setIsSearching(false);
+        return; // No selected records to export
+      }
+      
+      // Export the selected businesses
+      exportToCSV(selectedBusinesses);
+      setIsSearching(false);
+    } catch (error) {
+      console.error('Error exporting selected results:', error);
+      setIsSearching(false);
+      
+      // Export what we have so far
+      const selectedBusinesses = filteredResults.filter(business => selectedRecords[business.id]);
+      if (selectedBusinesses.length > 0) {
+        exportToCSV(selectedBusinesses);
+      }
+    }
+  }
 
+  // Helper function to export data to CSV
+  const exportToCSV = (businesses: UIBusiness[]) => {
     // Create CSV content
-    const headers = ["Name", "Address", "City", "Rating", "Phone", "Email", "Website", "Category"]
+    const headers = ["Name", "Address", "City", "State", "Zip Code", "Rating", "Reviews", "Phone", "Email", "Website", "Description", "Google Map"]
     const csvContent = [
       headers.join(","),
-      ...filteredResults.map(business => [
+      ...businesses.map(business => [
         `"${business.name}"`,
         `"${business.formatted_address}"`,
         `"${business.city || ""}"`,
+        `"${business.state || ""}"`,
+        `"${business.zipCode || ""}"`,
         business.rating || "",
+        business.review_count || "",
         `"${business.phone || ""}"`,
         `"${business.email || ""}"`,
         `"${business.website || ""}"`,
-        `"${business.description || ""}"`
+        `"${business.description || ""}"`,
+        `"${business.googleMapUrl || ""}"`
       ].join(","))
     ].join("\n")
 
@@ -251,9 +296,60 @@ export default function SearchPage() {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
+    
+    // Clean up
+    URL.revokeObjectURL(url)
   }
 
   const columns: ColumnDef<UIBusiness>[] = [
+    {
+      accessorKey: "select",
+      header: (
+        <div className="relative flex items-center justify-center group">
+          <Checkbox 
+            checked={selectAllVisible}
+            onCheckedChange={(checked) => {
+              const currentPageIds = filteredResults
+                .slice((currentPage - 1) * pageSize, currentPage * pageSize)
+                .map(row => row.id);
+              
+              // Create a new selection state
+              const newSelected = { ...selectedRecords };
+              
+              // Update selection for current page items
+              currentPageIds.forEach(id => {
+                newSelected[id] = !!checked;
+              });
+              
+              setSelectedRecords(newSelected);
+              setSelectAllVisible(!!checked);
+            }}
+            aria-label="Select all visible records"
+            className="cursor-pointer"
+          />
+          <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
+            Select all visible records
+          </span>
+        </div>
+      ),
+      cell: ({ row }) => {
+        const id = row.original.id;
+        return (
+          <div className="flex items-center justify-center">
+            <Checkbox 
+              checked={!!selectedRecords[id]}
+              onCheckedChange={(checked) => {
+                setSelectedRecords(prev => ({
+                  ...prev,
+                  [id]: !!checked
+                }));
+              }}
+              aria-label={`Select ${row.original.name}`}
+            />
+          </div>
+        );
+      },
+    },
     {
       accessorKey: "name",
       header: "Name",
@@ -296,15 +392,24 @@ export default function SearchPage() {
     },
     {
       accessorKey: "rating",
-      header: <div className="text-center w-full">Rating</div>,
+      header: <div className="text-center w-full">Reviews</div>,
       cell: ({ row }: { row: { original: UIBusiness; getValue: (key: string) => any } }) => {
         const rating = row.getValue("rating") as number
+        const reviewCount = row.original.review_count || 0
         return (
-          <div className="min-w-[80px] max-w-[100px] text-center">
+          <div className="min-w-[100px] max-w-[120px] text-center">
             {rating ? (
-              <Badge variant="outline">{rating.toFixed(1)} ★</Badge>
+              <div className="flex flex-col items-center gap-1">
+                <Badge variant="outline" className="flex items-center gap-1">
+                  <span className="font-medium">{rating.toFixed(1)}</span>
+                  <span className="text-yellow-500">★</span>
+                </Badge>
+                <span className="text-xs text-muted-foreground">
+                  {reviewCount} {reviewCount === 1 ? 'review' : 'reviews'}
+                </span>
+              </div>
             ) : (
-              <Badge variant="outline" className="text-muted-foreground">No rating</Badge>
+              <Badge variant="outline" className="text-muted-foreground">No reviews</Badge>
             )}
           </div>
         )
@@ -453,12 +558,37 @@ export default function SearchPage() {
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={downloadCSV}
-                  className="flex items-center gap-2"
+                  onClick={() => {
+                    // Select all records that match the current filters
+                    const newSelected = { ...selectedRecords };
+                    filteredResults.forEach(business => {
+                      newSelected[business.id] = true;
+                    });
+                    setSelectedRecords(newSelected);
+                    setSelectAllVisible(true);
+                  }}
+                  className="flex items-center gap-2 relative group"
                   disabled={filteredResults.length === 0}
+                  title="Select all records that match your current filters"
+                >
+                  <CheckSquare className="h-4 w-4 mr-1" />
+                  Select All Matching Records
+                  <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
+                    Selects all records that match your current filters
+                  </span>
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={downloadCSV}
+                  className="flex items-center gap-2 relative group"
+                  disabled={Object.keys(selectedRecords).length === 0 || !Object.values(selectedRecords).some(v => v)}
+                  title="Export selected records to CSV file"
                 >
                   <Download className="h-4 w-4" />
-                  Export CSV
+                  Export {Object.values(selectedRecords).filter(Boolean).length} Selected
+                  <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
+                    Exports only selected records
+                  </span>
                 </Button>
                 <Button onClick={() => setShowChat(!showChat)} variant="secondary">
                   {showChat ? "Hide Chat" : "AI Assistant"}
@@ -466,7 +596,7 @@ export default function SearchPage() {
               </div>
             </div>
           </CardHeader>
-          <CardContent className="p-0">
+          <CardContent>
             {searchError && (
               <Alert variant="destructive" className="mx-6 mt-4">
                 <AlertDescription>{searchError}</AlertDescription>
@@ -496,7 +626,14 @@ export default function SearchPage() {
                       </div>
                     ) : (
                       <>
-                        <ResultsTable columns={columns} data={filteredResults} />
+                        <ResultsTable 
+                          columns={columns} 
+                          data={filteredResults} 
+                          currentPage={currentPage}
+                          setCurrentPage={setCurrentPage}
+                          pageSize={pageSize}
+                          setPageSize={setPageSize}
+                        />
                         
                         {nextPageToken && (
                           <div className="mt-4 flex justify-center">

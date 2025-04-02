@@ -6,7 +6,7 @@ import { FilterSection } from "@/components/filter-section"
 import { ResultsTable } from "@/components/results-table"
 import { ChatPanel } from "@/components/chat-panel"
 import { LogoutButton } from "@/components/logout-button"
-import { EnhancedSidebar } from "@/components/enhanced-sidebar"
+import { EnhancedSidebar, SidebarPinState } from "@/components/enhanced-sidebar"
 import { SidebarItem } from "@/components/sidebar-item"
 import { Button } from "@/components/ui/button"
 import { Download, Home, Search, History, Settings, Users, Map } from "lucide-react"
@@ -22,6 +22,7 @@ export default function MapLeadsApp() {
   ])
   const [activeItem, setActiveItem] = React.useState("search")
   const [sidebarOpen, setSidebarOpen] = React.useState(true)
+  const [sidebarPinState, setSidebarPinState] = React.useState<SidebarPinState>("locked-open")
 
   // Mock data for demonstration
   React.useEffect(() => {
@@ -120,21 +121,21 @@ export default function MapLeadsApp() {
     // Apply filters to search results
     let filtered = [...searchResults]
 
-    if (filters.name) {
-      filtered = filtered.filter((business) => business.name.toLowerCase().includes(filters.name.toLowerCase()))
+    if (filters.name && filters.name.trim() !== '') {
+      filtered = filtered.filter((business) => business.name.toLowerCase().includes(filters.name!.toLowerCase()))
     }
 
-    if (filters.street) {
-      filtered = filtered.filter((business) => business.street.toLowerCase().includes(filters.street.toLowerCase()))
+    if (filters.street && filters.street.trim() !== '') {
+      filtered = filtered.filter((business) => business.street.toLowerCase().includes(filters.street!.toLowerCase()))
     }
 
-    if (filters.city) {
-      filtered = filtered.filter((business) => business.city.toLowerCase().includes(filters.city.toLowerCase()))
+    if (filters.city && filters.city.trim() !== '') {
+      filtered = filtered.filter((business) => business.city.toLowerCase().includes(filters.city!.toLowerCase()))
     }
 
-    if (filters.description) {
+    if (filters.description && filters.description.trim() !== '') {
       filtered = filtered.filter((business) =>
-        business.description.toLowerCase().includes(filters.description.toLowerCase()),
+        business.description.toLowerCase().includes(filters.description!.toLowerCase()),
       )
     }
 
@@ -200,7 +201,12 @@ export default function MapLeadsApp() {
 
       {/* Content area with sidebar and main content */}
       <div className="flex flex-1 overflow-hidden min-h-[calc(100vh-4rem)]">
-        <EnhancedSidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen}>
+        <EnhancedSidebar 
+          isOpen={sidebarOpen} 
+          setIsOpen={setSidebarOpen}
+          pinState={sidebarPinState}
+          setPinState={setSidebarPinState}
+        >
           <div className="flex flex-col items-center gap-1 py-2 pt-4">
             <SidebarItem
               icon={<Home className="h-5 w-5" />}
@@ -284,6 +290,7 @@ export interface Business {
   state?: string
   zipCode?: string
   rating: number
+  review_count?: number
   phone: string | undefined
   email: string | undefined
   website: string | undefined
@@ -298,10 +305,10 @@ export interface SearchHistoryItem {
 }
 
 export interface FilterValues {
-  name: string
-  street: string
-  city: string
-  description: string
+  name?: string
+  street?: string
+  city?: string
+  description?: string
   ratingRange: [number, number]
   hasPhone: boolean
   hasEmail: boolean
