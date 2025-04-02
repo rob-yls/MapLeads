@@ -584,7 +584,7 @@ export default function SearchPage() {
                         disabled={filteredResults.length === 0}
                       >
                         <CheckSquare className="h-4 w-4 mr-1" />
-                        Select All Matching Records
+                        Select All From Results
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent side="top">
