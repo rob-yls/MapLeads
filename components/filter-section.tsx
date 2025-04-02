@@ -94,15 +94,17 @@ export function FilterSection({ onFilterChange }: FilterSectionProps) {
                 render={({ field }) => (
                   <FormItem>
                     <TooltipProvider>
-                      <TooltipTrigger asChild>
-                        <FormLabel>
-                          Business Name{" "}
-                          <HelpCircle size={16} className="ml-1 text-gray-400" />
-                        </FormLabel>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        Filter by the name of the business.
-                      </TooltipContent>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <FormLabel>
+                            Business Name{" "}
+                            <HelpCircle size={16} className="ml-1 text-gray-400" />
+                          </FormLabel>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          Filter by the name of the business.
+                        </TooltipContent>
+                      </Tooltip>
                     </TooltipProvider>
                     <FormControl>
                       <Input placeholder="Filter by name" {...field} />
@@ -117,15 +119,17 @@ export function FilterSection({ onFilterChange }: FilterSectionProps) {
                 render={({ field }) => (
                   <FormItem>
                     <TooltipProvider>
-                      <TooltipTrigger asChild>
-                        <FormLabel>
-                          City{" "}
-                          <HelpCircle size={16} className="ml-1 text-gray-400" />
-                        </FormLabel>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        Filter by the city where the business is located.
-                      </TooltipContent>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <FormLabel>
+                            City{" "}
+                            <HelpCircle size={16} className="ml-1 text-gray-400" />
+                          </FormLabel>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          Filter by the city where the business is located.
+                        </TooltipContent>
+                      </Tooltip>
                     </TooltipProvider>
                     <FormControl>
                       <Input placeholder="Filter by city" {...field} />
@@ -140,15 +144,17 @@ export function FilterSection({ onFilterChange }: FilterSectionProps) {
                 render={({ field }) => (
                   <FormItem>
                     <TooltipProvider>
-                      <TooltipTrigger asChild>
-                        <FormLabel>
-                          Street{" "}
-                          <HelpCircle size={16} className="ml-1 text-gray-400" />
-                        </FormLabel>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        Filter by the street where the business is located.
-                      </TooltipContent>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <FormLabel>
+                            Street{" "}
+                            <HelpCircle size={16} className="ml-1 text-gray-400" />
+                          </FormLabel>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          Filter by the street where the business is located.
+                        </TooltipContent>
+                      </Tooltip>
                     </TooltipProvider>
                     <FormControl>
                       <Input placeholder="Filter by street" {...field} />
@@ -163,15 +169,17 @@ export function FilterSection({ onFilterChange }: FilterSectionProps) {
                 render={({ field }) => (
                   <FormItem>
                     <TooltipProvider>
-                      <TooltipTrigger asChild>
-                        <FormLabel>
-                          Description{" "}
-                          <HelpCircle size={16} className="ml-1 text-gray-400" />
-                        </FormLabel>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        Filter by keywords in the business description.
-                      </TooltipContent>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <FormLabel>
+                            Description{" "}
+                            <HelpCircle size={16} className="ml-1 text-gray-400" />
+                          </FormLabel>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          Filter by keywords in the business description.
+                        </TooltipContent>
+                      </Tooltip>
                     </TooltipProvider>
                     <FormControl>
                       <Input placeholder="Filter by keywords" {...field} />
@@ -190,15 +198,17 @@ export function FilterSection({ onFilterChange }: FilterSectionProps) {
                 render={({ field }) => (
                   <FormItem>
                     <TooltipProvider>
-                      <TooltipTrigger asChild>
-                        <FormLabel>
-                          Rating Range: {field.value[0].toFixed(1)} - {field.value[1].toFixed(1)}{" "}
-                          <HelpCircle size={16} className="ml-1 text-gray-400" />
-                        </FormLabel>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        Filter by the rating range of the business.
-                      </TooltipContent>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <FormLabel>
+                            Rating Range: {field.value[0].toFixed(1)} - {field.value[1].toFixed(1)}{" "}
+                            <HelpCircle size={16} className="ml-1 text-gray-400" />
+                          </FormLabel>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          Filter by the rating range of the business.
+                        </TooltipContent>
+                      </Tooltip>
                     </TooltipProvider>
                     <FormControl>
                       <Slider
@@ -222,20 +232,22 @@ export function FilterSection({ onFilterChange }: FilterSectionProps) {
                     name="hasPhone"
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                        <TooltipProvider>
-                          <TooltipTrigger asChild>
-                            <FormControl>
-                              <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-                            </FormControl>
-                            <FormLabel className="font-normal">
-                              Has Phone{" "}
-                              <HelpCircle size={16} className="ml-1 text-gray-400" />
-                            </FormLabel>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            Filter by businesses that have a phone number.
-                          </TooltipContent>
-                        </TooltipProvider>
+                        <FormControl>
+                          <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                        </FormControl>
+                        <div className="flex items-center">
+                          <FormLabel className="font-normal">Has Phone</FormLabel>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <HelpCircle size={16} className="ml-1 text-gray-400 cursor-help" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                Filter by businesses that have a phone number.
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
                       </FormItem>
                     )}
                   />
@@ -245,20 +257,22 @@ export function FilterSection({ onFilterChange }: FilterSectionProps) {
                     name="hasEmail"
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                        <TooltipProvider>
-                          <TooltipTrigger asChild>
-                            <FormControl>
-                              <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-                            </FormControl>
-                            <FormLabel className="font-normal">
-                              Has Email{" "}
-                              <HelpCircle size={16} className="ml-1 text-gray-400" />
-                            </FormLabel>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            Filter by businesses that have an email address.
-                          </TooltipContent>
-                        </TooltipProvider>
+                        <FormControl>
+                          <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                        </FormControl>
+                        <div className="flex items-center">
+                          <FormLabel className="font-normal">Has Email</FormLabel>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <HelpCircle size={16} className="ml-1 text-gray-400 cursor-help" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                Filter by businesses that have an email address.
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
                       </FormItem>
                     )}
                   />
@@ -268,20 +282,22 @@ export function FilterSection({ onFilterChange }: FilterSectionProps) {
                     name="hasWebsite"
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                        <TooltipProvider>
-                          <TooltipTrigger asChild>
-                            <FormControl>
-                              <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-                            </FormControl>
-                            <FormLabel className="font-normal">
-                              Has Website{" "}
-                              <HelpCircle size={16} className="ml-1 text-gray-400" />
-                            </FormLabel>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            Filter by businesses that have a website.
-                          </TooltipContent>
-                        </TooltipProvider>
+                        <FormControl>
+                          <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                        </FormControl>
+                        <div className="flex items-center">
+                          <FormLabel className="font-normal">Has Website</FormLabel>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <HelpCircle size={16} className="ml-1 text-gray-400 cursor-help" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                Filter by businesses that have a website.
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
                       </FormItem>
                     )}
                   />
