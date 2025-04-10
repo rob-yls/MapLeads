@@ -26,6 +26,7 @@ const formSchema = z.object({
   city: z.string().optional(),
   description: z.string().optional(),
   ratingRange: z.tuple([z.number(), z.number()]),
+  radiusRange: z.number().default(8047),
   hasPhone: z.boolean().default(false),
   hasEmail: z.boolean().default(false),
   hasWebsite: z.boolean().default(false),
@@ -44,6 +45,7 @@ export function FilterSection({ onFilterChange }: FilterSectionProps) {
       city: "",
       description: "",
       ratingRange: [0, 5],
+      radiusRange: 8047,
       hasPhone: false,
       hasEmail: false,
       hasWebsite: false,
@@ -68,6 +70,7 @@ export function FilterSection({ onFilterChange }: FilterSectionProps) {
       city: "",
       description: "",
       ratingRange: [0, 5],
+      radiusRange: 8047,
       hasPhone: false,
       hasEmail: false,
       hasWebsite: false,
@@ -192,6 +195,56 @@ export function FilterSection({ onFilterChange }: FilterSectionProps) {
             <Separator className="my-4" />
 
             <div className="grid gap-6 sm:grid-cols-2">
+              <FormField
+                control={form.control}
+                name="radiusRange"
+                render={({ field }) => {
+                  // Convert meters to miles for display
+                  const radiusInMiles = Math.round(field.value / 1609.34);
+                  
+                  return (
+                    <FormItem>
+                      <div className="flex justify-between items-center">
+                        <FormLabel>
+                          Search Radius: {radiusInMiles} miles
+                        </FormLabel>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <HelpCircle size={16} className="ml-1 text-gray-400 cursor-help" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              Adjust the search radius around the specified location.
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                      <FormControl>
+                        <div className="relative pt-6 pb-4">
+                          <SliderPrimitive.Root
+                            min={1609}
+                            max={80467}
+                            step={1609}
+                            value={[field.value]}
+                            onValueChange={(value) => field.onChange(value[0])}
+                            className="relative flex w-full touch-none select-none items-center py-4"
+                          >
+                            <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-secondary">
+                              <SliderPrimitive.Range className="absolute h-full bg-primary" />
+                            </SliderPrimitive.Track>
+                            <SliderPrimitive.Thumb className="block h-5 w-5 rounded-full border-2 border-primary bg-background ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
+                          </SliderPrimitive.Root>
+                          <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                            <span>1 mile</span>
+                            <span>50 miles</span>
+                          </div>
+                        </div>
+                      </FormControl>
+                    </FormItem>
+                  );
+                }}
+              />
+              
               <FormField
                 control={form.control}
                 name="ratingRange"

@@ -47,6 +47,8 @@ export default function SearchPage() {
   const [businessType, setBusinessType] = React.useState("")
   const [location, setLocation] = React.useState("")
   const [radius, setRadius] = React.useState(5000)
+  const [useGridSearch, setUseGridSearch] = React.useState(false)
+  const [gridSize, setGridSize] = React.useState(2)
   const [showChat, setShowChat] = React.useState(false)
   const [filteredResults, setFilteredResults] = React.useState<UIBusiness[]>([])
   const [showFilters, setShowFilters] = React.useState(false)
@@ -83,13 +85,25 @@ export default function SearchPage() {
   }, [searchResults])
 
   // Handle search form submission
-  const handleSearch = async (businessType: string, location: string) => {
+  const handleSearch = async (
+    businessType: string, 
+    location: string, 
+    searchRadius: number = 5000, 
+    useGridSearch: boolean = false, 
+    gridSize: number = 2
+  ) => {
+    // Update state with the search parameters
+    setBusinessType(businessType)
+    setLocation(location)
+    setUseGridSearch(useGridSearch)
+    setGridSize(gridSize)
     setActiveTab("results")
     setIsSearching(true)
     setSearchError(null)
+    setRadius(searchRadius) // Update the radius state
     
     try {
-      console.log(`Searching for ${businessType} in ${location}...`);
+      console.log(`Searching for ${businessType} in ${location} with radius ${searchRadius}m${useGridSearch ? `, using grid search (size: ${gridSize})` : ''}...`);
       
       const response = await fetch(`/api/maps/search`, {
         method: 'POST',
@@ -99,7 +113,9 @@ export default function SearchPage() {
         body: JSON.stringify({
           query: businessType,
           location: location,
-          radius: 5000, // Default 5km radius
+          radius: searchRadius,
+          useGridSearch: useGridSearch,
+          gridSize: gridSize
         }),
         cache: 'no-store',
         next: { revalidate: 0 } // Disable caching
@@ -144,6 +160,14 @@ export default function SearchPage() {
   // Handle filter changes
   const handleFilterChange = (filters: any) => {
     if (!searchResults) return
+
+    // If radius filter changed and it's different from the current radius, perform a new search
+    if (filters.radiusRange && filters.radiusRange !== radius && businessType && location) {
+      setRadius(filters.radiusRange);
+      // Reuse the previous grid search settings from state
+      handleSearch(businessType, location, filters.radiusRange, useGridSearch, gridSize);
+      return;
+    }
 
     // Apply filters to the original search results
     const filtered = searchResults
@@ -561,7 +585,6 @@ export default function SearchPage() {
                   variant="outline"
                   onClick={() => setShowFilters(!showFilters)}
                   className="flex items-center gap-2"
-                  disabled={!searchResults || searchResults.length === 0}
                 >
                   <Filter className="h-4 w-4" />
                   {showFilters ? "Hide Filters" : "Show Filters"}

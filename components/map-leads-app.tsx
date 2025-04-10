@@ -310,6 +310,7 @@ export interface FilterValues {
   city?: string
   description?: string
   ratingRange: [number, number]
+  radiusRange?: number
   hasPhone: boolean
   hasEmail: boolean
   hasWebsite: boolean

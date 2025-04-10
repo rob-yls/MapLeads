@@ -8,7 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
-import { googleMapsService } from '@/lib/google-maps';
+import { googleMapsService, parseSearchQuery } from '@/lib/google-maps';
 import { searchService, businessService, searchResultService } from '@/lib/database';
 
 // DEVELOPMENT ONLY: Set this to true to bypass authentication checks
@@ -78,19 +78,64 @@ export async function POST(request: NextRequest) {
         nextPageToken: searchResults.nextPageToken
       });
     } else {
-      console.log(`[API] Searching for businesses with query=${query}, location=${location}, radius=${radius}`);
+      // Check if grid search is requested
+      const useGridSearch = body.useGridSearch === true;
+      const gridSize = body.gridSize || 2; // Default grid size is 2 (creates a 5x5 grid)
       
-      const searchResults = await googleMapsService.searchBusinesses(
-        query,
-        location,
+      console.log(`[API] Searching for businesses with query=${query}, location=${location}, radius=${radius}, useGridSearch=${useGridSearch}, gridSize=${gridSize}`);
+      
+      let searchResults;
+      
+      // Check if the query already contains location information
+      let searchQuery = query;
+      let searchLocation = location;
+      
+      // Parse the query to extract business type and location if needed
+      if (query.includes(' in ') || query.includes(' near ')) {
+        const parsedQuery = parseSearchQuery(query);
+        if (parsedQuery.location) {
+          console.log(`[API] Parsed query "${query}" into business type: "${parsedQuery.businessType}" and location: "${parsedQuery.location}"`);
+          searchQuery = parsedQuery.businessType;
+          // Only override location if it was explicitly provided in the query
+          if (parsedQuery.location) {
+            searchLocation = parsedQuery.location;
+          }
+        }
+      }
+      
+      // Use the intelligent search approach that selects the best search strategy
+      searchResults = await googleMapsService.intelligentSearch(
+        searchQuery,
+        searchLocation,
         radius,
-        category
+        category,
+        useGridSearch,
+        gridSize
       );
       
+      // For backward compatibility, if no results are found with intelligent search
+      // and we're not using grid search, fall back to the original search method
+      if (!searchResults.results.length && !useGridSearch) {
+        console.log(`[API] No results found with intelligent search, falling back to text search`);
+        searchResults = await googleMapsService.searchBusinesses(
+          searchQuery,
+          location,
+          radius,
+          category
+        );
+      }
+      
       // Manually fetch details for each place to ensure we have complete contact information
+      // Only fetch details for the first 10 results to avoid rate limiting
+      const MAX_DETAILS = 10;
       if (searchResults.results.length > 0) {
+        const resultsToProcess = searchResults.results.slice(0, Math.min(searchResults.results.length, MAX_DETAILS));
+        const remainingResults = searchResults.results.slice(MAX_DETAILS);
+        
+        console.log(`[API] Fetching details for ${resultsToProcess.length} out of ${searchResults.results.length} businesses`);
+        
         const enhancedResults = await Promise.all(
-          searchResults.results.map(async (business) => {
+          resultsToProcess.map(async (business) => {
             try {
               // Get full details for each business to ensure phone and website data is present
               const details = await googleMapsService.getBusinessDetails(business.google_place_id || business.id || '');
@@ -102,8 +147,8 @@ export async function POST(request: NextRequest) {
           })
         );
         
-        // Replace all results with enhanced results
-        searchResults.results = enhancedResults;
+        // Combine enhanced results with remaining results
+        searchResults.results = [...enhancedResults, ...remainingResults];
       }
       
       // In development mode with bypass, we can optionally skip database operations
