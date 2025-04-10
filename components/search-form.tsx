@@ -79,25 +79,25 @@ export function SearchForm({ onSearch }: SearchFormProps) {
             control={form.control}
             name="useUnifiedSearch"
             render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                <div className="space-y-0.5">
-                  <FormLabel>Natural Language Search</FormLabel>
+              <FormItem className="rounded-lg border shadow-sm overflow-hidden">
+                <div className="flex items-center justify-between px-3 h-9">
+                  <FormLabel className="m-0 leading-none pr-2">Natural Language Search</FormLabel>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={(checked) => {
+                        field.onChange(checked);
+                        // Reset fields when toggling
+                        if (checked) {
+                          form.setValue("unifiedSearch", "");
+                        } else {
+                          form.setValue("businessType", "");
+                          form.setValue("location", "");
+                        }
+                      }}
+                    />
+                  </FormControl>
                 </div>
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={(checked) => {
-                      field.onChange(checked);
-                      // Reset fields when toggling
-                      if (checked) {
-                        form.setValue("unifiedSearch", "");
-                      } else {
-                        form.setValue("businessType", "");
-                        form.setValue("location", "");
-                      }
-                    }}
-                  />
-                </FormControl>
               </FormItem>
             )}
           />
