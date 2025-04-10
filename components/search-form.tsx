@@ -206,78 +206,100 @@ export function SearchForm({ onSearch }: SearchFormProps) {
             />
           </div>
         )}
-        <div className="grid gap-4 md:grid-cols-2">
-          <FormField
-            control={form.control}
-            name="useGridSearch"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                <div className="space-y-0.5">
-                  <div className="flex items-center">
-                    <FormLabel className="mr-2">Use Grid Search</FormLabel>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Grid search performs multiple overlapping searches to find more results beyond the 60-result limit.</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    Find more businesses by using a grid-based search approach
-                  </div>
-                </div>
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
+        {/* Advanced Search Options Section */}
+        <div className="space-y-4 border rounded-lg p-4 bg-slate-50">
+          <h3 className="text-sm font-medium">Advanced Search Options</h3>
           
-          {form.watch("useGridSearch") && (
+          {/* Grid Search Toggle */}
+          <div className="w-full">
             <FormField
               control={form.control}
-              name="gridSize"
+              name="useGridSearch"
               render={({ field }) => (
-                <FormItem>
-                  <div className="flex items-center">
-                    <FormLabel className="mr-2">Grid Size</FormLabel>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Larger grid sizes find more results but take longer to complete.</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border bg-white p-3 shadow-sm">
+                  <div className="space-y-0.5">
+                    <div className="flex items-center">
+                      <FormLabel className="mr-2 font-medium">Use Grid Search</FormLabel>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs">
+                            <p>Grid search performs multiple overlapping searches to find more results beyond the 60-result limit.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      Find more businesses by using a grid-based search approach
+                    </div>
                   </div>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger className="pl-9 relative">
-                        <Grid className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                        <SelectValue placeholder="Select grid size" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="1">Small (3×3 grid)</SelectItem>
-                      <SelectItem value="2">Medium (5×5 grid)</SelectItem>
-                      <SelectItem value="3">Large (7×7 grid)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <div className="text-xs text-muted-foreground">
-                    Larger grid sizes may take longer to complete
-                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
                 </FormItem>
               )}
             />
+          </div>
+          
+          {/* Grid Size Selector - Appears when Grid Search is enabled */}
+          {form.watch("useGridSearch") && (
+            <div className="w-full pl-4 border-l-2 border-slate-200 ml-2">
+              <FormField
+                control={form.control}
+                name="gridSize"
+                render={({ field }) => (
+                  <FormItem className="space-y-2">
+                    <div className="flex items-center">
+                      <FormLabel className="mr-2 font-medium">Grid Size</FormLabel>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs">
+                            <p>Larger grid sizes find more results but take longer to complete.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                      <div 
+                        className={`flex flex-col items-center justify-center p-2 border rounded-md cursor-pointer transition-all ${field.value === "1" ? "bg-primary/10 border-primary" : "bg-white hover:bg-slate-100"}`}
+                        onClick={() => field.onChange("1")}
+                      >
+                        <Grid className="h-5 w-5 mb-1" />
+                        <span className="font-medium">Small</span>
+                        <span className="text-xs text-muted-foreground">3×3 grid</span>
+                      </div>
+                      <div 
+                        className={`flex flex-col items-center justify-center p-2 border rounded-md cursor-pointer transition-all ${field.value === "2" ? "bg-primary/10 border-primary" : "bg-white hover:bg-slate-100"}`}
+                        onClick={() => field.onChange("2")}
+                      >
+                        <Grid className="h-5 w-5 mb-1" />
+                        <span className="font-medium">Medium</span>
+                        <span className="text-xs text-muted-foreground">5×5 grid</span>
+                      </div>
+                      <div 
+                        className={`flex flex-col items-center justify-center p-2 border rounded-md cursor-pointer transition-all ${field.value === "3" ? "bg-primary/10 border-primary" : "bg-white hover:bg-slate-100"}`}
+                        onClick={() => field.onChange("3")}
+                      >
+                        <Grid className="h-5 w-5 mb-1" />
+                        <span className="font-medium">Large</span>
+                        <span className="text-xs text-muted-foreground">7×7 grid</span>
+                      </div>
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      Larger grid sizes may take longer to complete but find more results
+                    </div>
+                  </FormItem>
+                )}
+              />
+            </div>
           )}
         </div>
         <div className="flex justify-center">
