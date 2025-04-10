@@ -210,120 +210,121 @@ export function SearchForm({ onSearch }: SearchFormProps) {
         <div className="space-y-4 border rounded-lg p-4 bg-slate-50">
           <h3 className="text-sm font-medium">Advanced Search Options</h3>
           
-          {/* Grid Search Toggle */}
-          <div className="w-full">
-            <FormField
-              control={form.control}
-              name="useGridSearch"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border bg-white p-3 shadow-sm">
-                  <div className="space-y-0.5">
-                    <div className="flex items-center">
-                      <FormLabel className="mr-2 font-medium">Use Grid Search</FormLabel>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
-                          </TooltipTrigger>
-                          <TooltipContent className="max-w-xs p-3">
-                            <div className="space-y-2">
-                              <p className="font-medium">What is Grid Search?</p>
-                              <p>Grid search divides the search area into a grid and performs multiple searches to overcome the 60-result limit of the Google Places API.</p>
-                              <p className="font-medium mt-2">Why use it?</p>
-                              <p>It significantly increases the number of businesses found in a single search, giving you more comprehensive results.</p>
-                              <p className="font-medium mt-2">Time considerations:</p>
-                              <ul className="list-disc pl-4 space-y-1">
-                                <li>Larger grid sizes increase search time but find more businesses</li>
-                                <li>Larger search radius also increases search time</li>
-                                <li>A large grid with a large radius may take over a minute to complete</li>
-                              </ul>
-                            </div>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      Find more businesses by searching across multiple overlapping areas
-                    </div>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-          </div>
-          
-          {/* Grid Size Selector - Appears when Grid Search is enabled */}
-          {form.watch("useGridSearch") && (
-            <div className="w-full pl-4 border-l-2 border-slate-200 ml-2">
-              <FormField
-                control={form.control}
-                name="gridSize"
-                render={({ field }) => (
-                  <FormItem className="space-y-2">
-                    <div className="flex items-center">
-                      <FormLabel className="mr-2 font-medium">Grid Size</FormLabel>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
-                          </TooltipTrigger>
-                          <TooltipContent className="max-w-xs">
-                            <p>Larger grid sizes find more results but take longer to complete.</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                      <div 
-                        className={`flex flex-col items-center justify-center p-2 border rounded-md cursor-pointer transition-all ${field.value === "1" ? "bg-primary/10 border-primary" : "bg-white hover:bg-slate-100"}`}
-                        onClick={() => field.onChange("1")}
-                      >
-                        <div className="h-10 w-10 grid grid-cols-3 gap-0.5 mb-1">
-                          {[...Array(9)].map((_, i) => (
-                            <div key={i} className="bg-primary/40 rounded-sm" />
-                          ))}
-                        </div>
-                        <span className="font-medium">Small</span>
-                        <span className="text-xs text-muted-foreground">3×3 grid</span>
+          {/* Grid Search Controls */}
+          <div className="space-y-3">
+            {/* Grid Search Toggle */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <FormLabel className="font-medium mb-0">Use Grid Search</FormLabel>
+                
+                <FormField
+                  control={form.control}
+                  name="useGridSearch"
+                  render={({ field }) => (
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  )}
+                />
+                
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs p-3">
+                      <div className="space-y-2">
+                        <p className="font-medium">What is Grid Search?</p>
+                        <p>Grid search divides the search area into a grid and performs multiple searches to overcome the 60-result limit of the Google Places API.</p>
+                        <p className="font-medium mt-2">Why use it?</p>
+                        <p>It significantly increases the number of businesses found in a single search, giving you more comprehensive results.</p>
+                        <p className="font-medium mt-2">Time considerations:</p>
+                        <ul className="list-disc pl-4 space-y-1">
+                          <li>Larger grid sizes increase search time but find more businesses</li>
+                          <li>Larger search radius also increases search time</li>
+                          <li>A large grid with a large radius may take over a minute to complete</li>
+                        </ul>
                       </div>
-                      <div 
-                        className={`flex flex-col items-center justify-center p-2 border rounded-md cursor-pointer transition-all ${field.value === "2" ? "bg-primary/10 border-primary" : "bg-white hover:bg-slate-100"}`}
-                        onClick={() => field.onChange("2")}
-                      >
-                        <div className="h-10 w-10 grid grid-cols-5 gap-0.5 mb-1">
-                          {[...Array(25)].map((_, i) => (
-                            <div key={i} className="bg-primary/40 rounded-sm" />
-                          ))}
-                        </div>
-                        <span className="font-medium">Medium</span>
-                        <span className="text-xs text-muted-foreground">5×5 grid</span>
-                      </div>
-                      <div 
-                        className={`flex flex-col items-center justify-center p-2 border rounded-md cursor-pointer transition-all ${field.value === "3" ? "bg-primary/10 border-primary" : "bg-white hover:bg-slate-100"}`}
-                        onClick={() => field.onChange("3")}
-                      >
-                        <div className="h-10 w-10 grid grid-cols-7 gap-0.5 mb-1">
-                          {[...Array(49)].map((_, i) => (
-                            <div key={i} className="bg-primary/40 rounded-sm" />
-                          ))}
-                        </div>
-                        <span className="font-medium">Large</span>
-                        <span className="text-xs text-muted-foreground">7×7 grid</span>
-                      </div>
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      Larger grid sizes and search radius will find more businesses but increase search completion time
-                    </div>
-                  </FormItem>
-                )}
-              />
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
             </div>
-          )}
+            
+            {/* Instructions - Always visible */}
+            <div className="text-xs text-muted-foreground">
+              Find more businesses by searching across multiple overlapping areas. Larger grid sizes and search radius will find more businesses but increase search completion time.
+            </div>
+            
+            {/* Grid Size Selector - Appears when Grid Search is enabled */}
+            {form.watch("useGridSearch") && (
+              <div className="pt-2 mt-2 border-t border-slate-200">
+                <FormField
+                  control={form.control}
+                  name="gridSize"
+                  render={({ field }) => (
+                    <FormItem className="space-y-3">
+                      <div className="flex items-center">
+                        <FormLabel className="mr-2 font-medium">Grid Size</FormLabel>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                            </TooltipTrigger>
+                            <TooltipContent className="max-w-xs">
+                              <p>Larger grid sizes find more results but take longer to complete.</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <div 
+                          className={`flex flex-col items-center justify-center p-2 border rounded-md cursor-pointer transition-all ${field.value === "1" ? "bg-primary/10 border-primary" : "bg-white hover:bg-slate-100"}`}
+                          onClick={() => field.onChange("1")}
+                        >
+                          <div className="h-10 w-10 grid grid-cols-3 gap-0.5 mb-1">
+                            {[...Array(9)].map((_, i) => (
+                              <div key={i} className="bg-primary/40 rounded-sm" />
+                            ))}
+                          </div>
+                          <span className="font-medium">Small</span>
+                          <span className="text-xs text-muted-foreground">3×3 grid</span>
+                        </div>
+                        <div 
+                          className={`flex flex-col items-center justify-center p-2 border rounded-md cursor-pointer transition-all ${field.value === "2" ? "bg-primary/10 border-primary" : "bg-white hover:bg-slate-100"}`}
+                          onClick={() => field.onChange("2")}
+                        >
+                          <div className="h-10 w-10 grid grid-cols-5 gap-0.5 mb-1">
+                            {[...Array(25)].map((_, i) => (
+                              <div key={i} className="bg-primary/40 rounded-sm" />
+                            ))}
+                          </div>
+                          <span className="font-medium">Medium</span>
+                          <span className="text-xs text-muted-foreground">5×5 grid</span>
+                        </div>
+                        <div 
+                          className={`flex flex-col items-center justify-center p-2 border rounded-md cursor-pointer transition-all ${field.value === "3" ? "bg-primary/10 border-primary" : "bg-white hover:bg-slate-100"}`}
+                          onClick={() => field.onChange("3")}
+                        >
+                          <div className="h-10 w-10 grid grid-cols-7 gap-0.5 mb-1">
+                            {[...Array(49)].map((_, i) => (
+                              <div key={i} className="bg-primary/40 rounded-sm" />
+                            ))}
+                          </div>
+                          <span className="font-medium">Large</span>
+                          <span className="text-xs text-muted-foreground">7×7 grid</span>
+                        </div>
+                      </div>
+
+                    </FormItem>
+                  )}
+                />
+              </div>
+            )}
+          </div>
         </div>
         <div className="flex justify-center">
           <Button type="submit" className="w-full md:w-64 h-9 flex items-center justify-center">
